@@ -1,1 +1,4 @@
+
 echo "dupa"
+cd frontend/work-choser
+npx lint-staged
