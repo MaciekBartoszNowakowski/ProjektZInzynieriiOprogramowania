@@ -6,7 +6,7 @@
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 export const firstColor = '#808080';
-nowy blad
+nowy blad a
 
 export const Colors = {
     light: {
