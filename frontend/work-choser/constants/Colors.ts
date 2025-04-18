@@ -7,7 +7,7 @@ const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 export const firstColor = '#808080';
 nowy blad aaaaaaaaass
-
+a
 export const Colors = {
     light: {
         text: '#11181C',
