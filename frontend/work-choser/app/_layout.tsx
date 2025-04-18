@@ -26,7 +26,7 @@ export default function RootLayout() {
     if (!loaded) {
         return null;
     }
-
+    // dupa xdxd
     return (
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <Stack>
