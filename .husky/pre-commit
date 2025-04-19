@@ -1,0 +1,2 @@
+cd frontend/work-choser
+npx lint-staged

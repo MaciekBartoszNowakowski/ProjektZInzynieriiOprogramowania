@@ -1,0 +1,23 @@
+{
+  "name": "io",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MaciekBartoszNowakowski/ProjektZInzynieriiOprogramowania.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MaciekBartoszNowakowski/ProjektZInzynieriiOprogramowania/issues"
+  },
+  "homepage": "https://github.com/MaciekBartoszNowakowski/ProjektZInzynieriiOprogramowania#readme",
+  "dependencies": {
+    "husky": "^9.1.7"
+  }
+}
