@@ -18,7 +18,7 @@ jobs:
     - name: Build and start Docker Compose services
       run: |
         docker compose build
-        docker compose up -d db
+        docker compose up
       working-directory: ./backend
 
     - name: Wait for database to be ready
