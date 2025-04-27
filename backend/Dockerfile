@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
@@ -15,7 +15,13 @@ RUN pip install --no-cache-dir \
     djangorestframework \
     psycopg2-binary \
     pytest \
-    pytest-django
+    pytest-django \
+    djangorestframework-simplejwt \
+    dj-rest-auth \
+    django-environ \
+    pyjwt \
+    drf-yasg \
+    parameterized
 
 COPY . .
 
