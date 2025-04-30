@@ -21,7 +21,8 @@ RUN pip install --no-cache-dir \
     django-environ \
     pyjwt \
     drf-yasg \
-    parameterized
+    parameterized \
+    drf-spectacular
 
 COPY . .
 

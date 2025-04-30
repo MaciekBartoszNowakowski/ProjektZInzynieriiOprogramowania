@@ -94,33 +94,26 @@ class UserSerializerTests(APITestCase):
 
         self.assertListEqual(data['tags'], [])
 
-    def test_read_only_fields(self):
-        serializer = UserSerializer(instance=self.user_with_tags, data={
+    def test_deserialization_ignores_read_only_fields_and_validates_writable(self):
+        data = {
             'username': 'new_username',
             'first_name': 'Nowe Imię',
             'description': 'Nowy opis',
             'tags': ['NowyTag']
-        }, partial=True)
+        }
 
-        self.assertTrue(serializer.is_valid())
+        serializer = UserSerializer(instance=self.user_with_tags, data=data, partial=True)
 
-        user_instance = serializer.save()
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
-        user_instance.refresh_from_db()
+        self.assertEqual(serializer.validated_data.get('description'), 'Nowy opis')
+        self.assertNotIn('username', serializer.validated_data)
+        self.assertNotIn('first_name', serializer.validated_data)
+        self.assertNotIn('academic_title', serializer.validated_data)
+        self.assertNotIn('role', serializer.validated_data)
+        self.assertNotIn('department', serializer.validated_data)
+        self.assertNotIn('tags', serializer.validated_data)
 
-        self.assertEqual(user_instance.username, 'user_tags')
-        self.assertEqual(user_instance.first_name, 'Jan')
-        self.assertEqual(user_instance.academic_title, AcademicTitle.DOCTOR)
-        self.assertEqual(user_instance.role, Role.SUPERVISOR)
-        self.assertEqual(user_instance.department, self.department_it)
-
-        expected_tags_after_save = [self.tag_python, self.tag_django]
-        self.assertListEqual(
-            sorted(list(user_instance.tags.all()), key=lambda tag: tag.name),
-            sorted(expected_tags_after_save, key=lambda tag: tag.name)
-        )
-
-        self.assertEqual(user_instance.description, 'Nowy opis')
 
 class StudentProfileSerializerTests(APITestCase):
 
@@ -194,7 +187,7 @@ class StudentProfileSerializerTests(APITestCase):
         self.assertListEqual(sorted(user_data['tags']), sorted(expected_tags))
 
 
-    def test_update_user_description_via_nested_user_data(self):
+    def test_deserialization_validates_nested_user_description(self):
         new_description = 'Updated description via nested data'
         data = {'user': {'description': new_description}}
 
@@ -205,18 +198,13 @@ class StudentProfileSerializerTests(APITestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
-        updated_profile = serializer.save()
 
-        self.user_student_update.refresh_from_db()
-
-        self.assertEqual(self.user_student_update.description, new_description)
-
-        self.assertEqual(updated_profile, self.student_profile_update)
-
-        self.assertEqual(updated_profile.index_number, 'S11223')
+        self.assertIn('user', serializer.validated_data)
+        self.assertEqual(serializer.validated_data['user'].get('description'), new_description)
+        self.assertNotIn('index_number', serializer.validated_data)
 
 
-    def test_update_ignores_other_nested_user_fields(self):
+    def test_deserialization_ignores_other_nested_user_fields(self):
         data = {
             'user': {
                 'username': 'new_username',
@@ -236,24 +224,22 @@ class StudentProfileSerializerTests(APITestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
-        updated_profile = serializer.save()
 
-        updated_profile.refresh_from_db()
-        self.user_student_update.refresh_from_db()
+        self.assertIn('user', serializer.validated_data)
+        user_data = serializer.validated_data['user']
+        self.assertEqual(user_data.get('description'), 'Description that should be updated')
 
-        self.assertEqual(updated_profile.index_number, 'S11223')
+        self.assertNotIn('username', user_data)
+        self.assertNotIn('first_name', user_data)
+        self.assertNotIn('academic_title', user_data)
+        self.assertNotIn('role', user_data)
+        self.assertNotIn('department', user_data)
+        self.assertNotIn('tags', user_data)
 
-        self.assertEqual(self.user_student_update.username, 'student_update_test')
-        self.assertEqual(self.user_student_update.first_name, 'Update')
-        self.assertEqual(self.user_student_update.academic_title, AcademicTitle.BACHELOR)
-        self.assertEqual(self.user_student_update.role, Role.STUDENT)
-        self.assertEqual(self.user_student_update.department, self.department_it)
+        self.assertNotIn('index_number', serializer.validated_data)
 
-        self.assertListEqual(list(self.user_student_update.tags.all()), [])
 
-        self.assertEqual(self.user_student_update.description, 'Description that should be updated')
-
-    def test_update_ignores_profile_fields(self):
+    def test_deserialization_ignores_profile_fields(self):
         data = {
             'index_number': 'S99999',
             'user': {
@@ -268,17 +254,14 @@ class StudentProfileSerializerTests(APITestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
-        updated_profile = serializer.save()
 
-        updated_profile.refresh_from_db()
-        self.user_student_update.refresh_from_db()
+        self.assertIn('user', serializer.validated_data)
+        self.assertEqual(serializer.validated_data['user'].get('description'), 'Description updated via profile field test')
 
-        self.assertEqual(updated_profile.index_number, 'S11223')
-
-        self.assertEqual(self.user_student_update.description, 'Description updated via profile field test')
+        self.assertNotIn('index_number', serializer.validated_data)
 
 
-    def test_update_with_null_description_via_nested_user_data(self):
+    def test_deserialization_with_null_description_via_nested_user_data(self):
         data_empty = {'user': {'description': ''}}
         serializer_empty = StudentProfileSerializer(
             instance=self.student_profile_update,
@@ -286,9 +269,8 @@ class StudentProfileSerializerTests(APITestCase):
             partial=True
         )
         self.assertTrue(serializer_empty.is_valid(), serializer_empty.errors)
-        updated_profile_empty = serializer_empty.save()
-        self.user_student_update.refresh_from_db()
-        self.assertEqual(self.user_student_update.description, '')
+        self.assertIn('user', serializer_empty.validated_data)
+        self.assertEqual(serializer_empty.validated_data['user'].get('description'), '')
 
         data_null = {'user': {'description': None}}
         serializer_null = StudentProfileSerializer(
@@ -297,12 +279,11 @@ class StudentProfileSerializerTests(APITestCase):
             partial=True
         )
         self.assertTrue(serializer_null.is_valid(), serializer_null.errors)
-        updated_profile_null = serializer_null.save()
-        self.user_student_update.refresh_from_db()
-        self.assertIn(self.user_student_update.description, ['', None])
+        self.assertIn('user', serializer_null.validated_data)
+        self.assertIsNone(serializer_null.validated_data['user'].get('description'))
 
-    def test_update_without_user_data(self):
-        initial_description = self.user_student_update.description
+
+    def test_deserialization_without_user_data(self):
         data = {}
 
         serializer = StudentProfileSerializer(
@@ -312,13 +293,10 @@ class StudentProfileSerializerTests(APITestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
-        updated_profile = serializer.save()
 
-        updated_profile.refresh_from_db()
-        self.user_student_update.refresh_from_db()
+        self.assertNotIn('user', serializer.validated_data)
+        self.assertNotIn('index_number', serializer.validated_data)
 
-        self.assertEqual(self.user_student_update.description, initial_description)
-        self.assertEqual(updated_profile.index_number, 'S11223')
 
 class SupervisorProfileSerializerTests(APITestCase):
 
@@ -408,7 +386,7 @@ class SupervisorProfileSerializerTests(APITestCase):
         self.assertListEqual(sorted(user_data['tags']), sorted(expected_tags))
 
 
-    def test_update_user_description_via_nested_user_data(self):
+    def test_deserialization_validates_nested_user_description(self):
         new_description = 'Updated supervisor description via nested data'
         data = {'user': {'description': new_description}}
 
@@ -419,19 +397,12 @@ class SupervisorProfileSerializerTests(APITestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
-        updated_profile = serializer.save()
 
-        self.user_supervisor_update.refresh_from_db()
-
-        self.assertEqual(self.user_supervisor_update.description, new_description)
-
-        self.assertEqual(updated_profile, self.supervisor_profile_update)
-
-        self.assertEqual(updated_profile.bacherol_limit, 1)
-        self.assertEqual(updated_profile.master_limit, 1)
+        self.assertIn('user', serializer.validated_data)
+        self.assertEqual(serializer.validated_data['user'].get('description'), new_description)
 
 
-    def test_update_limits(self):
+    def test_deserialization_validates_limits(self):
         new_data = {
             'bacherol_limit': 10,
             'master_limit': 15,
@@ -444,20 +415,15 @@ class SupervisorProfileSerializerTests(APITestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
-        updated_profile = serializer.save()
 
-        updated_profile.refresh_from_db()
-
-        self.assertEqual(updated_profile.bacherol_limit, 10)
-        self.assertEqual(updated_profile.engineering_limit, 1)
-        self.assertEqual(updated_profile.master_limit, 15)
-        self.assertEqual(updated_profile.phd_limit, 1)
-
-        self.user_supervisor_update.refresh_from_db()
-        self.assertEqual(self.user_supervisor_update.description, 'Description before update')
+        self.assertEqual(serializer.validated_data.get('bacherol_limit'), 10)
+        self.assertEqual(serializer.validated_data.get('master_limit'), 15)
+        self.assertNotIn('engineering_limit', serializer.validated_data)
+        self.assertNotIn('phd_limit', serializer.validated_data)
+        self.assertNotIn('user', serializer.validated_data)
 
 
-    def test_update_user_description_and_limits_together(self):
+    def test_deserialization_validates_user_description_and_limits_together(self):
         new_description = 'Combined update description'
         new_limits_data = {
             'bacherol_limit': 12,
@@ -472,20 +438,17 @@ class SupervisorProfileSerializerTests(APITestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
-        updated_profile = serializer.save()
 
-        updated_profile.refresh_from_db()
-        self.user_supervisor_update.refresh_from_db()
+        self.assertEqual(serializer.validated_data.get('bacherol_limit'), 12)
+        self.assertEqual(serializer.validated_data.get('phd_limit'), 4)
+        self.assertNotIn('engineering_limit', serializer.validated_data)
+        self.assertNotIn('master_limit', serializer.validated_data)
 
-        self.assertEqual(updated_profile.bacherol_limit, 12)
-        self.assertEqual(updated_profile.engineering_limit, 1)
-        self.assertEqual(updated_profile.master_limit, 1)
-        self.assertEqual(updated_profile.phd_limit, 4)
-
-        self.assertEqual(self.user_supervisor_update.description, new_description)
+        self.assertIn('user', serializer.validated_data)
+        self.assertEqual(serializer.validated_data['user'].get('description'), new_description)
 
 
-    def test_update_ignores_other_nested_user_fields(self):
+    def test_deserialization_ignores_other_nested_user_fields(self):
         data = {
             'bacherol_limit': 8,
             'user': {
@@ -506,25 +469,22 @@ class SupervisorProfileSerializerTests(APITestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
-        updated_profile = serializer.save()
 
-        updated_profile.refresh_from_db()
-        self.user_supervisor_update.refresh_from_db()
+        self.assertEqual(serializer.validated_data.get('bacherol_limit'), 8)
 
-        self.assertEqual(updated_profile.bacherol_limit, 8)
+        self.assertIn('user', serializer.validated_data)
+        user_data = serializer.validated_data['user']
+        self.assertEqual(user_data.get('description'), 'Description that should be updated')
 
-        self.assertEqual(self.user_supervisor_update.username, 'supervisor_update_test')
-        self.assertEqual(self.user_supervisor_update.first_name, 'Update')
-        self.assertEqual(self.user_supervisor_update.academic_title, AcademicTitle.DOCTOR)
-        self.assertEqual(self.user_supervisor_update.role, Role.SUPERVISOR)
-        self.assertEqual(self.user_supervisor_update.department, self.department_el)
-
-        self.assertListEqual(list(self.user_supervisor_update.tags.all()), [])
-
-        self.assertEqual(self.user_supervisor_update.description, 'Description that should be updated')
+        self.assertNotIn('username', user_data)
+        self.assertNotIn('first_name', user_data)
+        self.assertNotIn('academic_title', user_data)
+        self.assertNotIn('role', user_data)
+        self.assertNotIn('department', user_data)
+        self.assertNotIn('tags', user_data)
 
 
-    def test_update_with_null_description_via_nested_user_data(self):
+    def test_deserialization_with_null_description_via_nested_user_data(self):
         data_empty = {'user': {'description': ''}}
         serializer_empty = SupervisorProfileSerializer(
             instance=self.supervisor_profile_update,
@@ -532,9 +492,8 @@ class SupervisorProfileSerializerTests(APITestCase):
             partial=True
         )
         self.assertTrue(serializer_empty.is_valid(), serializer_empty.errors)
-        updated_profile_empty = serializer_empty.save()
-        self.user_supervisor_update.refresh_from_db()
-        self.assertEqual(self.user_supervisor_update.description, '')
+        self.assertIn('user', serializer_empty.validated_data)
+        self.assertEqual(serializer_empty.validated_data['user'].get('description'), '')
 
         data_null = {'user': {'description': None}}
         serializer_null = SupervisorProfileSerializer(
@@ -543,11 +502,11 @@ class SupervisorProfileSerializerTests(APITestCase):
             partial=True
         )
         self.assertTrue(serializer_null.is_valid(), serializer_null.errors)
-        updated_profile_null = serializer_null.save()
-        self.user_supervisor_update.refresh_from_db()
-        self.assertIn(self.user_supervisor_update.description, ['', None])
+        self.assertIn('user', serializer_null.validated_data)
+        self.assertIsNone(serializer_null.validated_data['user'].get('description'))
 
-    def test_update_without_user_data(self):
+
+    def test_deserialization_without_user_data(self):
         initial_description = self.user_supervisor_update.description
         data = {
             'bacherol_limit': 9,
@@ -561,12 +520,7 @@ class SupervisorProfileSerializerTests(APITestCase):
         )
 
         self.assertTrue(serializer.is_valid(), serializer.errors)
-        updated_profile = serializer.save()
 
-        updated_profile.refresh_from_db()
-        self.user_supervisor_update.refresh_from_db()
-
-        self.assertEqual(self.user_supervisor_update.description, initial_description)
-
-        self.assertEqual(updated_profile.bacherol_limit, 9)
-        self.assertEqual(updated_profile.master_limit, 18)
+        self.assertEqual(serializer.validated_data.get('bacherol_limit'), 9)
+        self.assertEqual(serializer.validated_data.get('master_limit'), 18)
+        self.assertNotIn('user', serializer.validated_data)

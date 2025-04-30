@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
     'rest_framework',
+    'drf_spectacular',
     'drf_yasg',
     'dj_rest_auth',
     'django.contrib.sites',
@@ -101,6 +102,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'thesis_system.wsgi.application'
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
