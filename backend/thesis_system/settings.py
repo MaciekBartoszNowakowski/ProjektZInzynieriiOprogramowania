@@ -29,13 +29,11 @@ DEBUG = True
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1 [::1]').split()
 AUTH_USER_MODEL = 'users.User'
 REST_AUTH = {
-    'USE_JWT': True,                   # Powiedz dj-rest-auth, że używasz JWT
-    'JWT_AUTH_COOKIE': 'access',       # Nazwa ciasteczka dla access tokenu (powinna pasować do SIMPLE_JWT)
-    'JWT_AUTH_REFRESH_COOKIE': 'refresh', # Nazwa ciasteczka dla refresh tokenu (powinna pasować do SIMPLE_JWT)
-    'JWT_AUTH_HTTPONLY': True,         # Zgodne z SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY']
-    'TOKEN_MODEL': None,               # Jawnie powiedz dj-rest-auth, że nie używasz modelu Token z rest_framework.authtoken
-    # Możesz tu dodać inne ustawienia dj-rest-auth w przyszłości, np. dotyczące rejestracji, emaili etc.
-    # 'SESSION_LOGIN': False, # Można jawnie wyłączyć logowanie sesyjne, jeśli używasz tylko JWT
+    'USE_JWT': True,                   
+    'JWT_AUTH_COOKIE': 'access',       
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh',
+    'JWT_AUTH_HTTPONLY': True,         
+    'TOKEN_MODEL': None,               
 }
 
 SIMPLE_JWT = {
@@ -62,10 +60,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
     'rest_framework',
-    'users',
     'drf_yasg',
     'dj_rest_auth',
     'django.contrib.sites',
+    'users',
+    'common',
+    'thesis',
+    'publications',
+    'applications'
 ]
 
 MIDDLEWARE = [
