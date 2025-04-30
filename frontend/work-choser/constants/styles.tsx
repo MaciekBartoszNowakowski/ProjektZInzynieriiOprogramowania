@@ -1,4 +1,5 @@
-import { firstColor } from './Colors';
+import SupervisorList from '@/app/(tabs)/supervisorsList';
+import { Colors, firstColor, greenColor } from './Colors';
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
@@ -18,4 +19,186 @@ export const styles = StyleSheet.create({
     dafaultThemedText: {
         fontFamily: 'SpaceMono',
     },
+    container: {
+        flex: 1,
+        backgroundColor: "#D9D9D9",
+    },
+    narrowBox:{
+        width: '50%',
+        height: 50,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 10,
+        padding: 10,
+        marginBottom: 30,
+        alignSelf: 'center',
+        marginTop: 50,
+        justifyContent: 'center',    
+        alignItems: 'center', 
+    },
+    defaultBox:{
+        width: '80%',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 10,
+        padding: 10,
+        marginBottom: 30,
+        alignSelf: 'center',
+        marginTop: 30,
+    },
+    titleTextBox: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#242222',
+        fontFamily: 'SpaceMono',
+        textAlign: 'center',
+    },
+    textBox: {
+        fontSize: 16,
+        color: '#000000',
+        fontFamily: 'SpaceMono',
+        textAlign: 'center',
+        flex: 1,
+    },      
+    inputBox: {
+        width: '80%',
+        height: 200,
+        backgroundColor: 'white',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#333',
+        padding: 10,
+        marginBottom: 20,
+        alignSelf: 'center',
+        marginTop: 50,
+      },
+    thesisTitleBox: {
+    width: '80%',
+    height: 210,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 30,
+    alignSelf: 'center',
+    marginTop: 30,
+    },
+    thesisDescriptionBox: {
+    width: '80%',
+    height: 700,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 30,
+    alignSelf: 'center',
+    marginTop: 30,
+    },
+    signInButton: {
+    backgroundColor: greenColor,
+    alignSelf: 'flex-end',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+
+    },
+    buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    },
+    slotValue: {
+    fontWeight: 'bold',
+    color: 'red',
+    },
+    supervisorBox: {
+    width: '80%',
+    height: 70,
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    alignSelf: 'center',
+    },
+    pageTitile: {
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: greenColor,
+    fontFamily: 'SpaceMono',
+    textAlign: 'center',
+    marginTop: 50,
+    marginBottom: 50,
+    },
+    filterHeader: {
+    padding: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    marginVertical: 10,
+    width: '80%', 
+    alignSelf: 'center',
+    },
+    filterList: {
+    marginVertical: 10,
+    width: '80%',
+    alignSelf: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 10,
+    },
+    selectedFilters: {
+    marginVertical: 10,
+    width: '80%',
+    alignSelf: 'center',
+    },
+    filterItem: {
+    padding: 10,
+    marginVertical: 5,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    },
+    filterItemSelected: {
+    backgroundColor: '#c8e6c9',
+    },
+    tagList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginVertical: 10,
+    width: '80%',
+    alignSelf: 'center',
+    backgroundColor: '#f0f0f0',
+    borderRadius: 20
+    },
+    tagItem: {
+    backgroundColor: '#f5f5f5',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    margin: 5,
+    },
+    tagItemSelected: {
+    backgroundColor: '#aed581',
+    },
+    applyFiltersButton: {
+    backgroundColor: greenColor,
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    },
+    selectedTagsBox: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginTop: 8,
+        alignSelf: 'center',
+        width: '80%',
+    },
+    selectedTagText: {
+        backgroundColor: '#e0e0e0',
+        paddingVertical: 4,
+        paddingHorizontal: 8,
+        borderRadius: 12,
+        marginRight: 8,
+        marginBottom: 8,
+        fontSize: 14,
+    },
+    freeSpace: {
+        height: 50,
+    }
+    
 });
