@@ -10,12 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from datetime import timedelta
 import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -27,6 +27,26 @@ SECRET_KEY = 'django-insecure-anw1qppra4eb95cb9g40k=r!u$cok6j@ic)5lohc)7=d9iri9c
 DEBUG = True
 
 ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1 [::1]').split()
+AUTH_USER_MODEL = 'users.User'
+REST_AUTH = {
+    'USE_JWT': True,                   
+    'JWT_AUTH_COOKIE': 'access',       
+    'JWT_AUTH_REFRESH_COOKIE': 'refresh',
+    'JWT_AUTH_HTTPONLY': True,         
+    'TOKEN_MODEL': None,               
+}
+
+SIMPLE_JWT = {
+    "AUTH_HEADER_TYPES": ("JWT",),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "AUTH_COOKIE": "access",
+    "AUTH_COOKIE_REFRESH": "refresh",
+    "AUTH_COOKIE_HTTP_ONLY": True,
+    "AUTH_COOKIE_PATH": "/",
+    "AUTH_COOKIE_SECURE": False,  
+    "AUTH_COOKIE_SAMESITE": "Lax",  
+}
 
 
 # Application definition
@@ -38,8 +58,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt',
     'rest_framework',
-    'users'
+    'drf_spectacular',
+    'drf_yasg',
+    'dj_rest_auth',
+    'django.contrib.sites',
+    'users',
+    'common',
+    'thesis',
+    'publications',
+    'applications'
 ]
 
 MIDDLEWARE = [
@@ -53,6 +82,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'thesis_system.urls'
+SITE_ID = 1
 
 TEMPLATES = [
     {
@@ -71,6 +101,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'thesis_system.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'dj_rest_auth.jwt_auth.JWTCookieAuthentication', 
+    ],
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
