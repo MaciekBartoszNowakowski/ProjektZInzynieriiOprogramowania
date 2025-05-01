@@ -1,5 +1,16 @@
 /* eslint-disable react-native/no-color-literals */
-import { firstColor, greenColor } from './Colors';
+import {
+    black,
+    brightGrey,
+    charcoalGrey,
+    defaultGrey,
+    firstColor,
+    greenColor,
+    itemGrey,
+    listGrey,
+    mediumGrey,
+    selectedItemGreen,
+} from './Colors';
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
@@ -21,12 +32,12 @@ export const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: '#D9D9D9',
+        backgroundColor: defaultGrey,
     },
     narrowBox: {
         width: '50%',
         height: 50,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: brightGrey,
         borderRadius: 10,
         padding: 10,
         marginBottom: 30,
@@ -37,7 +48,7 @@ export const styles = StyleSheet.create({
     },
     defaultBox: {
         width: '80%',
-        backgroundColor: '#FFFFFF',
+        backgroundColor: brightGrey,
         borderRadius: 10,
         padding: 10,
         marginBottom: 30,
@@ -47,13 +58,13 @@ export const styles = StyleSheet.create({
     titleTextBox: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#242222',
+        color: charcoalGrey,
         fontFamily: 'SpaceMono',
         textAlign: 'center',
     },
     textBox: {
         fontSize: 16,
-        color: '#000000',
+        color: black,
         fontFamily: 'SpaceMono',
         textAlign: 'center',
         flex: 1,
@@ -73,7 +84,7 @@ export const styles = StyleSheet.create({
     thesisTitleBox: {
         width: '80%',
         height: 210,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: brightGrey,
         borderRadius: 10,
         padding: 10,
         marginBottom: 30,
@@ -83,7 +94,7 @@ export const styles = StyleSheet.create({
     thesisDescriptionBox: {
         width: '80%',
         height: 700,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: brightGrey,
         borderRadius: 10,
         padding: 10,
         marginBottom: 30,
@@ -109,9 +120,9 @@ export const styles = StyleSheet.create({
     supervisorBox: {
         width: '80%',
         height: 70,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: brightGrey,
         borderBottomWidth: 1,
-        borderBottomColor: '#ddd',
+        borderBottomColor: mediumGrey,
         alignSelf: 'center',
     },
     pageTitile: {
@@ -125,7 +136,7 @@ export const styles = StyleSheet.create({
     },
     filterHeader: {
         padding: 10,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: brightGrey,
         borderRadius: 8,
         marginVertical: 10,
         width: '80%',
@@ -135,7 +146,7 @@ export const styles = StyleSheet.create({
         marginVertical: 10,
         width: '80%',
         alignSelf: 'center',
-        backgroundColor: '#f0f0f0',
+        backgroundColor: listGrey,
         borderRadius: 10,
     },
     selectedFilters: {
@@ -146,11 +157,11 @@ export const styles = StyleSheet.create({
     filterItem: {
         padding: 10,
         marginVertical: 5,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: itemGrey,
         borderRadius: 8,
     },
     filterItemSelected: {
-        backgroundColor: '#c8e6c9',
+        backgroundColor: selectedItemGreen,
     },
     tagList: {
         flexDirection: 'row',
@@ -158,11 +169,11 @@ export const styles = StyleSheet.create({
         marginVertical: 10,
         width: '80%',
         alignSelf: 'center',
-        backgroundColor: '#f0f0f0',
+        backgroundColor: listGrey,
         borderRadius: 20,
     },
     tagItem: {
-        backgroundColor: '#f5f5f5',
+        backgroundColor: itemGrey,
         paddingVertical: 6,
         paddingHorizontal: 12,
         borderRadius: 10,
@@ -202,21 +213,21 @@ export const styles = StyleSheet.create({
     drawerMenuTextStyle: {
         borderRadius: 0,
         fontWeight: 'bold',
-        color: 'black',
+        color: black,
     },
     drawerItemStyle: {
         borderTopWidth: 1,
-        borderColor: 'black',
+        borderColor: black,
         width: '100%',
     },
     headerTextStyle: {
-        color: greenColor,
+        color: listGrey,
         textAlign: 'center',
         fontWeight: 'bold',
     },
     mainCustomDrawerStyle: {
         flex: 1,
-        backgroundColor: 'green',
+        backgroundColor: greenColor,
     },
     firstCustomDrawerStyle: {
         marginTop: 30,
@@ -230,7 +241,53 @@ export const styles = StyleSheet.create({
         marginLeft: 15,
     },
     menuNameStyle: {
+        color: listGrey,
         textAlign: 'center',
         fontSize: 30,
+    },
+    loginContainer: {
+        padding: 24,
+        flex: 1,
+        justifyContent: 'center',
+    },
+    loginLabel: {
+        fontSize: 16,
+        marginBottom: 4,
+    },
+    loginInput: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 6,
+        padding: 12,
+        marginBottom: 16,
+        fontSize: 16,
+    },
+    loginButtonContainer: {
+        marginTop: 8,
+    },
+    loginError: {
+        marginTop: 12,
+        color: 'red',
+        fontWeight: '600',
+    },
+    activeLabelStyle: {
+        color: listGrey,
+        fontWeight: 'bold' as const,
+        marginLeft: 10,
+    },
+    inactiveLabelStyle: {
+        color: listGrey,
+        fontWeight: 'normal' as const,
+        marginLeft: 10,
+    },
+    activeItemStyle: {
+        backgroundColor: selectedItemGreen,
+        borderTopWidth: 1,
+        borderColor: black,
+    },
+    inactiveItemStyle: {
+        backgroundColor: 'transparent',
+        borderTopWidth: 1,
+        borderColor: black,
     },
 });
