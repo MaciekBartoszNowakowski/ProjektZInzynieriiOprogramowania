@@ -8,6 +8,14 @@ const tintColorDark = '#fff';
 
 export const firstColor = '#808080';
 export const greenColor = '#00693C';
+export const defaultGrey = '#D9D9D9';
+export const brightGrey = '#FFFFFF';
+export const charcoalGrey = '#242222';
+export const black = '#000000';
+export const listGrey = '#f0f0f0';
+export const itemGrey = '#f5f5f5';
+export const selectedItemGreen = '#c8e6c9';
+export const mediumGrey = '#ddd';
 
 export const Colors = {
     light: {
