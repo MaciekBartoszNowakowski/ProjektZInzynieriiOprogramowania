@@ -2,27 +2,25 @@ import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { styles } from '@/constants/styles';
 import { useState } from 'react';
 
-const thesisExample = [
-    { name: 'Tram Newtork Simulation' },
-    { name: 'AI in chemistry' },
-    { name: 'AGH Guide' },
-];
+import thesisTitle from '@/dummy_data/thesisTitle.json';
+import departmentName from '@/dummy_data/departmentName.json';
+import tagName from '@/dummy_data/tagName.json';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 
-const departmentName = [{ name: 'WI' }, { name: 'WIET' }, { name: 'WEAIB' }];
-
-const tagName = [
-    { name: 'AI' },
-    { name: 'ML' },
-    { name: 'Security' },
-    { name: 'Databases' },
-    { name: 'WebDev' },
-];
+type ThesisesListStackParamList = {
+    ThesisesList: undefined;
+    ThesisDescription: { title: string; supervisor: string };
+};
 
 export default function ThesisesList() {
+    const navigation = useNavigation<NativeStackNavigationProp<ThesisesListStackParamList>>();
+
     const [isDepartmentsOpen, setIsDepartmentsOpen] = useState(false);
     const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
     const [isTagsOpen, setIsTagsOpen] = useState(false);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
     const toggleDepartment = (department: string) => {
         if (selectedDepartments.includes(department)) {
             setSelectedDepartments((prev) => prev.filter((dep) => dep !== department));
@@ -30,6 +28,7 @@ export default function ThesisesList() {
             setSelectedDepartments((prev) => [...prev, department]);
         }
     };
+
     const toggleTag = (tag: string) => {
         if (selectedTags.includes(tag)) {
             setSelectedTags((prev) => prev.filter((t) => t !== tag));
@@ -37,6 +36,7 @@ export default function ThesisesList() {
             setSelectedTags((prev) => [...prev, tag]);
         }
     };
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.pageTitile}>Filters</Text>
@@ -123,14 +123,22 @@ export default function ThesisesList() {
             </TouchableOpacity>
 
             <Text style={styles.pageTitile}>List of Thesises</Text>
-            {thesisExample.map((thesis, index) => (
-                <View key={index} style={styles.supervisorBox}>
-                    <Text key={index} style={styles.titleTextBox}>
-                        {thesis.name}
-                    </Text>
-                    <Text style={styles.textBox}>Departament, tags, etc, supervisor</Text>
-                </View>
+            {thesisTitle.map((thesis, index) => (
+                <TouchableOpacity
+                    key={index}
+                    style={styles.supervisorBox}
+                    onPress={() =>
+                        navigation.navigate('ThesisDescription', {
+                            title: thesis.title,
+                            supervisor: thesis.supervisor,
+                        })
+                    }
+                >
+                    <Text style={styles.titleTextBox}>{thesis.title}</Text>
+                    <Text style={styles.textBox}>Supervisor: {thesis.supervisor}</Text>
+                </TouchableOpacity>
             ))}
+
             <View style={styles.freeSpace} />
         </ScrollView>
     );

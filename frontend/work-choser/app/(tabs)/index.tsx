@@ -55,7 +55,6 @@ export default function HomeScreen() {
     );
 }
 
-const    num = 4;
 const styles = StyleSheet.create({
     titleContainer: {
         flexDirection: 'row',
