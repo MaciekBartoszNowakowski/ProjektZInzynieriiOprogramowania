@@ -6,9 +6,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { firstColor, greenColor } from '@/constants/Colors';
 import { styles } from '@/constants/styles';
 import StudentsProfile from '@/app/(tabs)/studentsProfile';
-import SupervisorProfile from '@/app/(tabs)/supervisorProfile';
-import SupervisorList from '@/app/(tabs)/supervisorsList';
-import ThesisesList from '@/app/(tabs)/thesisesList';
+import ThesisesListStack from '@/app/(tabs)/thesisesListStack';
+import SupervisorsListStack from '@/app/(tabs)/supervisorsListStack';
+
 const Drawer = createDrawerNavigator();
 
 SplashScreen.preventAutoHideAsync();
@@ -42,9 +42,9 @@ export default function CustomDrawerNavigator() {
             })}
         >
             <Drawer.Screen name="Student" component={StudentsProfile} />
-            <Drawer.Screen name="Supervisor Profile" component={SupervisorProfile} />
-            <Drawer.Screen name="Supervisors List" component={SupervisorList} />
-            <Drawer.Screen name="Thesises List" component={ThesisesList} />
+
+            <Drawer.Screen name="Supervisors" component={SupervisorsListStack} />
+            <Drawer.Screen name="Thesises List" component={ThesisesListStack} />
         </Drawer.Navigator>
     );
 }

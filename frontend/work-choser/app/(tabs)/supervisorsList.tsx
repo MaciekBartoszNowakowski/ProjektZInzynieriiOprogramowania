@@ -1,29 +1,24 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { styles } from '@/constants/styles';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-const dummyData = [{ name: 'Sławek Surowiec' }, { name: 'Marta Hyjek' }, { name: 'Marek Gajęcki' }];
+import supervisorName from '@/dummy_data/supervisorName.json';
+import departmentName from '@/dummy_data/departmentName.json';
+import tagName from '@/dummy_data/tagName.json';
 
-const departmentName = [{ name: 'WI' }, { name: 'WIET' }, { name: 'WEAIB' }];
+type StackParamList = {
+    SupervisorProfile: { name: string };
+};
 
-const tagName = [
-    { name: 'AI' },
-    { name: 'ML' },
-    { name: 'Security' },
-    { name: 'Databases' },
-    { name: 'WebDev' },
-];
+export default function SupervisorsList() {
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
 
-export default function SupervisorList() {
-    const [supervisors, setSupervisors] = useState<{ name: string }[]>([]);
     const [isDepartmentsOpen, setIsDepartmentsOpen] = useState(false);
     const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
     const [isTagsOpen, setIsTagsOpen] = useState(false);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
-    useEffect(() => {
-        setSupervisors(dummyData);
-    }, []);
 
     const toggleDepartment = (department: string) => {
         if (selectedDepartments.includes(department)) {
@@ -32,6 +27,7 @@ export default function SupervisorList() {
             setSelectedDepartments((prev) => [...prev, department]);
         }
     };
+
     const toggleTag = (tag: string) => {
         if (selectedTags.includes(tag)) {
             setSelectedTags((prev) => prev.filter((t) => t !== tag));
@@ -39,6 +35,7 @@ export default function SupervisorList() {
             setSelectedTags((prev) => [...prev, tag]);
         }
     };
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.pageTitile}>Filters</Text>
@@ -125,14 +122,20 @@ export default function SupervisorList() {
             </TouchableOpacity>
 
             <Text style={styles.pageTitile}>List of Supervisors</Text>
-            {supervisors.map((supervisor, index) => (
-                <View key={index} style={styles.supervisorBox}>
-                    <Text key={index} style={styles.titleTextBox}>
-                        {supervisor.name}
-                    </Text>
-                    <Text style={styles.textBox}>Departament, tags, etc.</Text>
-                </View>
+
+            {supervisorName.map((supervisor, index) => (
+                <TouchableOpacity
+                    key={index}
+                    style={styles.supervisorBox}
+                    onPress={() =>
+                        navigation.navigate('SupervisorProfile', { name: supervisor.name })
+                    }
+                >
+                    <Text style={styles.titleTextBox}>{supervisor.name}</Text>
+                    <Text style={styles.textBox}>Department, tags, etc.</Text>
+                </TouchableOpacity>
             ))}
+
             <View style={styles.freeSpace} />
         </ScrollView>
     );
