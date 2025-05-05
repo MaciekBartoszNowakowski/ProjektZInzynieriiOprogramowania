@@ -90,8 +90,33 @@ class TestSearchService(TestCase):
             ]
 
         self.assertEqual(results.count(), 8)
-        print(results)
 
         for i, (expected, recieved) in enumerate(zip(expected_order, results)):
             self.assertEqual(expected, recieved, f"Problem with {i}th element")
 
+    def test_pagination(self):
+        results = self.search_service.search_user(sort_by=["department", "username"], orders=["asc", "desc"], limit=3, offset=1)
+
+        expected_order = [
+            self.student_2,
+            self.student_1,
+            self.supervisor_2,
+        ]
+
+        self.assertEqual(results.count(), 3)
+
+        for i, (expected, recieved) in enumerate(zip(expected_order, results)):
+            self.assertEqual(expected, recieved, f"Problem with {i}th element")
+
+    def test_pagination_end(self):
+        results = self.search_service.search_user(sort_by=["department", "username"], orders=["asc", "desc"], limit=5, offset=6)
+
+        expected_order = [
+            self.supervisor_4,
+            self.student_4,
+        ]
+
+        self.assertEqual(results.count(), 2)
+        
+        for i, (expected, recieved) in enumerate(zip(expected_order, results)):
+            self.assertEqual(expected, recieved, f"Problem with {i}th element")
