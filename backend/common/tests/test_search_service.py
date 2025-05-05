@@ -1,6 +1,6 @@
 from django.test import TestCase
 from common.models import Department
-from users.models import User, Role
+from users.models import User, Role, AcademicTitle
 from common.search_service import SearchService
 
 class TestSearchService(TestCase):
@@ -40,6 +40,7 @@ class TestSearchService(TestCase):
         self.supervisor_1 = User.objects.create_user(
             username="Zygmunt",
             first_name="Zygmunt",
+            academic_title=AcademicTitle.PROFESSOR,
             role=Role.SUPERVISOR,
             department = self.department_1,
         )
@@ -47,6 +48,7 @@ class TestSearchService(TestCase):
         self.supervisor_2 = User.objects.create_user(
             username="Włodzimierz",
             first_name="Włodzimierz",
+            academic_title=AcademicTitle.PROFESSOR,
             role=Role.SUPERVISOR,
             department = self.department_2,
         )
@@ -54,6 +56,7 @@ class TestSearchService(TestCase):
         self.supervisor_3 = User.objects.create_user(
             username="Ula",
             first_name="Urszula",
+            academic_title=AcademicTitle.DOCTOR,
             role=Role.SUPERVISOR,
             department = self.department_3,
         )
@@ -61,6 +64,7 @@ class TestSearchService(TestCase):
         self.supervisor_4 = User.objects.create_user(
             username="Tadek",
             first_name="Tadeusz",
+            academic_title=AcademicTitle.MASTER,
             role=Role.SUPERVISOR,
             department = self.department_3,
         )
@@ -88,6 +92,25 @@ class TestSearchService(TestCase):
             self.supervisor_4,
             self.student_4,
             ]
+
+        self.assertEqual(results.count(), 8)
+
+        for i, (expected, recieved) in enumerate(zip(expected_order, results)):
+            self.assertEqual(expected, recieved, f"Problem with {i}th element")
+
+    def test_sorting_titles(self):
+        results = self.search_service.search_user(sort_by=["academic_title", "first_name"], orders=["desc", "asc"], limit=1000, offset=0)
+
+        expected_order = [
+            self.supervisor_2, 
+            self.supervisor_1,
+            self.supervisor_3,
+            self.supervisor_4,
+            self.student_1,
+            self.student_2,
+            self.student_3,
+            self.student_4,
+        ]
 
         self.assertEqual(results.count(), 8)
 
