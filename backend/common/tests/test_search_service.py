@@ -98,7 +98,6 @@ class TestSearchService(TestCase):
 
         self.search_service = SearchService()
 
-
     def test_filtering_by_first_name(self):
         results = self.search_service.search_user(first_name="Adam")
 
