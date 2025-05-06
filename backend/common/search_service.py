@@ -50,6 +50,9 @@ class SearchService():
         
         if sort_by is not None and len(sort_by) != len(orders):
             raise ValueError("Length of sort_by and orders must be of the same length")
+        
+        if limit < 0 or offset < 0:
+            raise ValueError(f"Limit and offset must be non-negative integers")
 
         results = User.objects.all()
 

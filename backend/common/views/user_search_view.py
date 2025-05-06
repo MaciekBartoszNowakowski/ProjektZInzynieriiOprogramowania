@@ -7,6 +7,9 @@ from common.search_service import SearchService
 from users.serializers.user_serializer import UserSerializer
 
 class UserSearchView(APIView):
+    """
+        Endpoint for filtering and sorting users
+    """
     def get(self, request):
         service = SearchService()
 
