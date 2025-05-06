@@ -1,14 +1,38 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { styles } from '@/constants/styles';
+import thesisData from '@/dummy_data/thesisTitle.json';
+
+type Params = {
+    ThesisDescription: {
+        title: string;
+        supervisor: string;
+    };
+};
 
 export default function ThesisDescription() {
+    const route = useRoute<RouteProp<Params, 'ThesisDescription'>>();
+    const { title } = route.params;
+
+    const thesis = thesisData.find(
+        (t) => t.title.trim().toLowerCase() === title.trim().toLowerCase(),
+    );
+
+    if (!thesis) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.textBox}>Thesis not found</Text>
+            </View>
+        );
+    }
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.thesisTitleBox}>
                 <Text style={styles.titleTextBox}>Thesis Title</Text>
-                <Text style={styles.textBox}>Title of the thesis</Text>
-                <Text style={styles.titleTextBox}>Thesis Supervisor</Text>
-                <Text style={styles.textBox}>Sławek Surowiec</Text>
+                <Text style={styles.textBox}>{thesis.title}</Text>
+                <Text style={styles.titleTextBox}>Supervisor</Text>
+                <Text style={styles.textBox}>{thesis.supervisor}</Text>
                 <Text style={styles.titleTextBox}>Availability</Text>
                 <Text style={styles.textBox}>
                     Free slots: <Text style={styles.slotValue}>x</Text> Busy slots:{' '}

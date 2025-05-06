@@ -1,14 +1,7 @@
 import { styles } from '@/constants/styles';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { useState } from 'react';
-
-const tagName = [
-    { name: 'AI' },
-    { name: 'ML' },
-    { name: 'Security' },
-    { name: 'Databases' },
-    { name: 'WebDev' },
-];
+import tagName from '@/dummy_data/tagName.json';
 
 export default function StudentsProfile() {
     const [description, setDescription] = useState('');
