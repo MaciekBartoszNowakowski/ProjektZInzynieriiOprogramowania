@@ -1,29 +1,67 @@
-from users.models import User, ACADEMIC_TITLE_SORT_ORDER
-from django.db.models import Case, When, Value, IntegerField
+from users.models import User, ACADEMIC_TITLE_SORT_ORDER, Role
+from django.db.models import Case, When, Value, IntegerField, Q
 
 class SearchService():
+    
     @staticmethod
-    def _annotate_academic_title_order(query_set):
+    def _annotate_academic_title_order(queryset):
         when_condition = [
             When(academic_title=key, then=Value(value))
             for key, value in ACADEMIC_TITLE_SORT_ORDER.items()
         ]
 
-        return query_set.annotate(
+        return queryset.annotate(
             academic_title_order=Case(
                 *when_condition,
                 output_field=IntegerField(),
             )
         )
+    
+    @staticmethod
+    def _filter_by_tags(queryset, tags: list[str]):
+        query = Q()
+        for tag in tags:
+            query |= Q(tags__name=tag)
 
-    def search_user(self, tags=None, department=None, limit=10, offset=0, sort_by=["academic_title"], orders=["desc"]):
-        if sort_by is not None and len(sort_by) != len(orders):
-            raise ValueError("Length of sort_by and orders must match.")
+        return queryset.filter(query).distinct()
+
+    def search_user(
+            self, 
+            first_name=None,
+            last_name=None,
+            tags=None, 
+            department=None, 
+            role=None,
+            sort_by=["academic_title"], 
+            orders=["desc"], 
+            limit=10, 
+            offset=0,
+            ):
         
+        if sort_by is not None and len(sort_by) != len(orders):
+            raise ValueError("Length of sort_by and orders must be of the same length")
+
         results = User.objects.all()
 
+        if role:
+            try:
+                role_value = Role[role.upper()].value
+            except KeyError:
+                raise ValueError(f"Unknown role: {role}")
+            
+            results = results.filter(role=role_value)
+
+        if first_name:
+            results = results.filter(first_name=first_name)
+
+        if last_name:
+            results = results.filter(last_name=last_name)
+
         if department:
-            results = results.filter(department__name__icontains=department)
+            results = results.filter(department__name=department)
+
+        if tags:
+            results = self._filter_by_tags(results, tags)
 
         if sort_by:
             order_by_arguments = []
