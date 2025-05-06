@@ -80,8 +80,10 @@ class SearchService():
                     results = self._annotate_academic_title_order(results)
                     field = "academic_title_order"
 
-                if field == "matching_tag_count" and tags:
+                if tags and field == "matching_tag_count":
                     results = self._annotate_tag_count(results, tags)
+                elif field == "matching_tag_count":
+                    continue
 
                 if order == "desc":
                     order_by_arguments.append(f"-{field}")
