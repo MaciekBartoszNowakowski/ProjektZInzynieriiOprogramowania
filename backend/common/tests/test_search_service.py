@@ -223,6 +223,22 @@ class TestSearchService(TestCase):
         for i, (expected, recieved) in enumerate(zip(expected_order, results)):
             self.assertEqual(expected, recieved, f"Problem with {i}th element")
 
+    def test_sorting_tag_count(self):
+        results = self.search_service.search_user(tags=["Math", "ML"], sort_by=["matching_tag_count", "academic_title", "last_name"], orders=["desc", "desc", "asc"], limit=1000, offset=0)
+
+        expected_order = [
+            self.supervisor_1, 
+            self.supervisor_4,
+            self.supervisor_2,
+            self.student_1,
+            self.student_3,
+        ]
+
+        self.assertEqual(results.count(), 5)
+
+        for i, (expected, recieved) in enumerate(zip(expected_order, results)):
+            self.assertEqual(expected, recieved, f"Problem with {i}th element")
+
     def test_pagination(self):
         results = self.search_service.search_user(sort_by=["department", "username"], orders=["asc", "desc"], limit=3, offset=1)
 

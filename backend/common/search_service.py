@@ -1,5 +1,5 @@
 from users.models import User, ACADEMIC_TITLE_SORT_ORDER, Role
-from django.db.models import Case, When, Value, IntegerField, Q
+from django.db.models import Case, When, Value, IntegerField, Q, Count
 
 class SearchService():
     
@@ -24,6 +24,16 @@ class SearchService():
             query |= Q(tags__name=tag)
 
         return queryset.filter(query).distinct()
+    
+    @staticmethod
+    def _annotate_tag_count(queryset, tags: list[str]):
+        return queryset.annotate(
+            matching_tag_count=Count(
+                'tags',
+                filter=Q(tags__name__in=tags),
+                distinct=True
+            )
+        )
 
     def search_user(
             self, 
@@ -69,6 +79,9 @@ class SearchService():
                 if field == "academic_title":
                     results = self._annotate_academic_title_order(results)
                     field = "academic_title_order"
+
+                if field == "matching_tag_count" and tags:
+                    results = self._annotate_tag_count(results, tags)
 
                 if order == "desc":
                     order_by_arguments.append(f"-{field}")
