@@ -22,15 +22,10 @@ RUN pip install --no-cache-dir \
     pyjwt \
     drf-yasg \
     parameterized \
-<<<<<<< Updated upstream
-    drf-spectacular \
-    django-filter
-=======
     pytest-cov \
     drf-spectacular \
     ruff
 
->>>>>>> Stashed changes
 COPY . .
 
 EXPOSE 8000
