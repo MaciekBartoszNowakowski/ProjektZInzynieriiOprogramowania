@@ -1,3 +1,7 @@
 from django.db import models
 
-# Create your models here.
+class ThesisType(models.TextChoices):
+    ENGINEERING = 'inżynierska', 'Inżynierska'
+    BACHELOR = 'licencjacka', 'Licencjacka'
+    MASTER = 'magisterska', 'Magisterska'
+    DOCTOR = 'doktorska', 'Doktorska'
