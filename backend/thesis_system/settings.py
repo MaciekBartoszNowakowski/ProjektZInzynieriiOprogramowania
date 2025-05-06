@@ -68,7 +68,7 @@ INSTALLED_APPS = [
     'common',
     'thesis',
     'publications',
-    'applications'
+    'applications',
 ]
 
 MIDDLEWARE = [

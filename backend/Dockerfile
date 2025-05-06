@@ -22,8 +22,8 @@ RUN pip install --no-cache-dir \
     pyjwt \
     drf-yasg \
     parameterized \
-    drf-spectacular
-
+    drf-spectacular \
+    django-filter
 COPY . .
 
 EXPOSE 8000

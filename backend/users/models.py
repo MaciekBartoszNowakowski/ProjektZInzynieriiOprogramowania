@@ -18,6 +18,15 @@ class AcademicTitle(models.TextChoices):
     HABILITATED_DOCTOR = 'doktor habilitowany', 'Doktor habilitowany'
     PROFESSOR = 'profesor', 'Profesor'
     
+ACADEMIC_TITLE_SORT_ORDER = {
+    AcademicTitle.NONE: 0,
+    AcademicTitle.ENGINEER: 1,
+    AcademicTitle.BACHELOR: 2,
+    AcademicTitle.MASTER: 3,
+    AcademicTitle.DOCTOR: 4,
+    AcademicTitle.HABILITATED_DOCTOR: 5,
+    AcademicTitle.PROFESSOR: 6,
+}
     
 class User(AbstractUser):
     role = models.CharField(
