@@ -3,11 +3,9 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from users.models import Role, AcademicTitle, StudentProfile, SupervisorProfile, Logs
 from common.models import Department, Tag
-from users.services.user_service import user_service # Assuming user_service is the instance
-
+from users.services.user_service import user_service
 
 User = get_user_model()
-
 
 class UserServiceTests(TestCase):
 
@@ -15,6 +13,8 @@ class UserServiceTests(TestCase):
         self.department_it = Department.objects.create(name="Wydział IT")
         self.tag_python = Tag.objects.create(name="Python")
         self.tag_django = Tag.objects.create(name="Django")
+        self.tag_rest = Tag.objects.create(name="REST API") 
+        self.tag_db = Tag.objects.create(name="Bazy Danych")
 
         self.student_password = 'student_password'
         self.user_student = User.objects.create_user(
@@ -53,8 +53,6 @@ class UserServiceTests(TestCase):
             description='Initial admin description', department=self.department_it
         )
 
-    # --- Testy aktualizacji dla Studenta ---
-
     def test_update_student_description(self):
         initial_description = self.user_student.description
         new_description = "Updated student description via service"
@@ -85,7 +83,7 @@ class UserServiceTests(TestCase):
     def test_update_student_ignores_other_user_fields(self):
         initial_username = self.user_student.username
         initial_role = self.user_student.role
-        initial_description = self.user_student.description # Should not change if description not in validated_data
+        initial_description = self.user_student.description 
         validated_data = {
             'user': {
                 'username': 'new_student_username',
@@ -100,10 +98,10 @@ class UserServiceTests(TestCase):
         self.user_student.refresh_from_db()
 
         self.assertEqual(self.user_student.description, initial_description)
-        self.assertEqual(self.user_student.username, initial_username)
-        self.assertEqual(self.user_student.role, initial_role)
+        self.assertEqual(self.user_student.username, initial_username) 
+        self.assertEqual(self.user_student.role, initial_role) 
 
-        self.assertEqual(Logs.objects.count(), 0) # No editable fields were changed
+        self.assertEqual(Logs.objects.count(), 0) 
 
     def test_update_student_ignores_profile_fields(self):
         initial_description = self.user_student.description
@@ -122,7 +120,7 @@ class UserServiceTests(TestCase):
         self.assertEqual(self.user_student.description, initial_description)
         self.assertEqual(self.student_profile.index_number, initial_index_number)
 
-        self.assertEqual(Logs.objects.count(), 0) # No editable fields were changed
+        self.assertEqual(Logs.objects.count(), 0)
 
 
     def test_update_student_with_empty_data(self):
@@ -140,10 +138,8 @@ class UserServiceTests(TestCase):
         self.assertEqual(self.user_student.description, initial_description)
         self.assertEqual(self.student_profile.index_number, initial_index_number)
 
-        self.assertEqual(Logs.objects.count(), 0) # No data to update, no changes logged
+        self.assertEqual(Logs.objects.count(), 0)
 
-
-    # --- Testy aktualizacji dla Promotora ---
 
     def test_update_supervisor_description(self):
         initial_description = self.user_supervisor.description
@@ -213,7 +209,7 @@ class UserServiceTests(TestCase):
 
         self.assertEqual(self.user_supervisor.description, new_description)
         self.assertEqual(self.supervisor_profile.engineering_limit, new_engineering_limit)
-        self.assertEqual(self.supervisor_profile.bacherol_limit, initial_bacherol_limit) # Check other limits unchanged
+        self.assertEqual(self.supervisor_profile.bacherol_limit, initial_bacherol_limit)
 
         self.assertEqual(Logs.objects.count(), 1)
         log_entry = Logs.objects.first()
@@ -241,8 +237,8 @@ class UserServiceTests(TestCase):
         self.supervisor_profile.refresh_from_db()
 
         self.assertEqual(self.user_supervisor.description, 'Supervisor description update attempt')
-        self.assertEqual(self.user_supervisor.username, initial_username)
-        self.assertEqual(self.user_supervisor.academic_title, initial_academic_title)
+        self.assertEqual(self.user_supervisor.username, initial_username) 
+        self.assertEqual(self.user_supervisor.academic_title, initial_academic_title) 
         self.assertEqual(self.supervisor_profile.bacherol_limit, initial_bacherol_limit)
 
         self.assertEqual(Logs.objects.count(), 1)
@@ -321,7 +317,7 @@ class UserServiceTests(TestCase):
         self.user_admin.refresh_from_db()
 
         self.assertEqual(self.user_admin.description, initial_description)
-        self.assertEqual(self.user_admin.email, initial_email)
+        self.assertEqual(self.user_admin.email, initial_email) 
         self.assertEqual(self.user_admin.first_name, initial_first_name)
 
         self.assertEqual(Logs.objects.count(), 0) 
@@ -348,7 +344,6 @@ class UserServiceTests(TestCase):
             description='Initial desc', department=self.department_it
         )
 
-
         initial_description = user_sup_no_profile.description
         new_description = "Updated desc for sup without profile"
         validated_data = {'user': {'description': new_description}}
@@ -366,3 +361,197 @@ class UserServiceTests(TestCase):
         log_entry = Logs.objects.first()
         self.assertIn('User.description', log_entry.description)
         self.assertNotIn('SupervisorProfile.', log_entry.description)
+
+    def test_update_user_tags_adds_tags(self):
+        user = self.user_student
+        initial_tag_names = sorted([tag.name for tag in user.tags.all()])
+        self.assertListEqual(initial_tag_names, sorted([self.tag_python.name]))
+
+        tags_to_add = [self.tag_django, self.tag_rest]
+        validated_data = {'to_add': tags_to_add}
+
+        self.assertEqual(Logs.objects.count(), 0)
+
+        updated_tags = user_service.update_user_tags(user, validated_data)
+
+        user.refresh_from_db()
+        updated_tag_names = sorted([tag.name for tag in user.tags.all()])
+
+        self.assertListEqual(updated_tag_names, sorted([self.tag_python.name, self.tag_django.name, self.tag_rest.name]))
+        self.assertListEqual(sorted([tag.name for tag in updated_tags]), updated_tag_names) 
+
+        self.assertEqual(Logs.objects.count(), 1)
+        log_entry = Logs.objects.first()
+        self.assertEqual(log_entry.user_id, user)
+        self.assertIn('Użytkownik o ID:', log_entry.description)
+        self.assertIn(f'({user.username}) zmienił tagi.', log_entry.description)
+        self.assertIn('Dodano tagi: Django, REST API', log_entry.description)
+        self.assertNotIn('Usunięto tagi:', log_entry.description)
+
+    def test_update_user_tags_removes_tags(self):
+        user = self.user_supervisor
+        initial_tag_names = sorted([tag.name for tag in user.tags.all()])
+        self.assertListEqual(initial_tag_names, sorted([self.tag_python.name, self.tag_django.name]))
+
+        tags_to_remove = [self.tag_python]
+        validated_data = {'to_remove': tags_to_remove}
+
+        self.assertEqual(Logs.objects.count(), 0)
+
+        updated_tags = user_service.update_user_tags(user, validated_data)
+
+        user.refresh_from_db()
+        updated_tag_names = sorted([tag.name for tag in user.tags.all()])
+
+        self.assertListEqual(updated_tag_names, sorted([self.tag_django.name]))
+        self.assertListEqual(sorted([tag.name for tag in updated_tags]), updated_tag_names)
+
+        self.assertEqual(Logs.objects.count(), 1)
+        log_entry = Logs.objects.first()
+        self.assertEqual(log_entry.user_id, user)
+        self.assertIn('Użytkownik o ID:', log_entry.description)
+        self.assertIn(f'({user.username}) zmienił tagi.', log_entry.description)
+        self.assertIn('Usunięto tagi: Python', log_entry.description)
+        self.assertNotIn('Dodano tagi:', log_entry.description)
+
+
+    def test_update_user_tags_adds_and_removes(self):
+        user = self.user_supervisor 
+        initial_tag_names = sorted([tag.name for tag in user.tags.all()])
+        self.assertListEqual(initial_tag_names, sorted([self.tag_python.name, self.tag_django.name]))
+
+        tags_to_add = [self.tag_rest]
+        tags_to_remove = [self.tag_python]
+        validated_data = {'to_add': tags_to_add, 'to_remove': tags_to_remove}
+
+        self.assertEqual(Logs.objects.count(), 0)
+
+        updated_tags = user_service.update_user_tags(user, validated_data)
+
+        user.refresh_from_db()
+        updated_tag_names = sorted([tag.name for tag in user.tags.all()])
+
+        self.assertListEqual(updated_tag_names, sorted([self.tag_django.name, self.tag_rest.name]))
+        self.assertListEqual(sorted([tag.name for tag in updated_tags]), updated_tag_names)
+
+        self.assertEqual(Logs.objects.count(), 1)
+        log_entry = Logs.objects.first()
+        self.assertEqual(log_entry.user_id, user)
+        self.assertIn('Dodano tagi: REST API', log_entry.description)
+        self.assertIn('Usunięto tagi: Python', log_entry.description)
+        self.assertIn(' | ', log_entry.description)
+
+
+    def test_update_user_tags_with_empty_lists(self):
+        user = self.user_student
+        initial_tag_names = sorted([tag.name for tag in user.tags.all()])
+        self.assertListEqual(initial_tag_names, sorted([self.tag_python.name]))
+
+        validated_data = {'to_add': [], 'to_remove': []}
+
+        self.assertEqual(Logs.objects.count(), 0)
+
+        updated_tags = user_service.update_user_tags(user, validated_data)
+
+        user.refresh_from_db()
+        updated_tag_names = sorted([tag.name for tag in user.tags.all()])
+
+        self.assertListEqual(updated_tag_names, initial_tag_names)
+        self.assertListEqual(sorted([tag.name for tag in updated_tags]), initial_tag_names)
+
+        self.assertEqual(Logs.objects.count(), 0)
+
+
+    def test_update_user_tags_with_missing_keys(self):
+        user = self.user_student
+        initial_tag_names = sorted([tag.name for tag in user.tags.all()])
+
+        validated_data1 = {'to_add': [self.tag_django, self.tag_rest]}
+        self.assertEqual(Logs.objects.count(), 0)
+        user_service.update_user_tags(user, validated_data1)
+        user.refresh_from_db()
+        self.assertListEqual(sorted([tag.name for tag in user.tags.all()]), sorted([self.tag_python.name, self.tag_django.name, self.tag_rest.name]))
+        self.assertEqual(Logs.objects.count(), 1)
+        Logs.objects.all().delete()
+
+        user_sup = self.user_supervisor
+        initial_sup_tag_names = sorted([tag.name for tag in user_sup.tags.all()])
+        self.assertListEqual(initial_sup_tag_names, sorted([self.tag_python.name, self.tag_django.name]))
+
+        validated_data2 = {'to_remove': [self.tag_python]}
+        self.assertEqual(Logs.objects.count(), 0)
+        user_service.update_user_tags(user_sup, validated_data2)
+        user_sup.refresh_from_db()
+        self.assertListEqual(sorted([tag.name for tag in user_sup.tags.all()]), sorted([self.tag_django.name]))
+        self.assertEqual(Logs.objects.count(), 1)
+        Logs.objects.all().delete()
+
+        user_student_copy = User.objects.get(pk=self.user_student.pk)
+        initial_student_tag_names = sorted([tag.name for tag in user_student_copy.tags.all()])
+        validated_data3 = {}
+        self.assertEqual(Logs.objects.count(), 0)
+        user_service.update_user_tags(user_student_copy, validated_data3)
+        user_student_copy.refresh_from_db()
+        self.assertListEqual(sorted([tag.name for tag in user_student_copy.tags.all()]), initial_student_tag_names)
+        self.assertEqual(Logs.objects.count(), 0)
+
+
+    def test_update_user_tags_no_change_logging(self):
+        user = self.user_student
+
+        tags_to_add_existing = [self.tag_python]
+        validated_data1 = {'to_add': tags_to_add_existing}
+        self.assertEqual(Logs.objects.count(), 0)
+        user_service.update_user_tags(user, validated_data1)
+        self.assertEqual(Logs.objects.count(), 0)
+
+        tags_to_remove_non_existing = [self.tag_rest]
+        validated_data2 = {'to_remove': tags_to_remove_non_existing}
+        self.assertEqual(Logs.objects.count(), 0)
+        user_service.update_user_tags(user, validated_data2)
+        self.assertEqual(Logs.objects.count(), 0)
+
+        validated_data3 = {'to_add': [self.tag_python], 'to_remove': [self.tag_rest]}
+        self.assertEqual(Logs.objects.count(), 0)
+        user_service.update_user_tags(user, validated_data3)
+        self.assertEqual(Logs.objects.count(), 0)
+
+
+    def test_update_user_tags_logging_format(self):
+        user = self.user_student
+        
+        tags_to_add = [self.tag_django]
+        tags_to_remove = [self.tag_python]
+
+        validated_data = {'to_add': tags_to_add, 'to_remove': tags_to_remove}
+
+        user_service.update_user_tags(user, validated_data)
+        
+        self.assertEqual(Logs.objects.count(), 1)
+        log_entry = Logs.objects.first()
+        
+        self.assertIn(f'Użytkownik o ID: {user.id} ({user.username}) zmienił tagi.', log_entry.description)
+        self.assertIn('Dodano tagi: Django', log_entry.description)
+        self.assertIn('Usunięto tagi: Python', log_entry.description)
+        self.assertIn(' | ', log_entry.description)
+
+        Logs.objects.all().delete()
+        user.tags.remove(self.tag_django)
+        user.tags.add(self.tag_python)
+
+        validated_data_add_only = {'to_add': [self.tag_django, self.tag_rest], 'to_remove': []}
+        user_service.update_user_tags(user, validated_data_add_only)
+        self.assertEqual(Logs.objects.count(), 1)
+        log_entry_add = Logs.objects.first()
+        self.assertIn('Dodano tagi: Django, REST API', log_entry_add.description)
+        self.assertNotIn('Usunięto tagi:', log_entry_add.description)
+
+        Logs.objects.all().delete()
+        user.tags.add(self.tag_django, self.tag_rest)
+        
+        validated_data_remove_only = {'to_add': [], 'to_remove': [self.tag_django, self.tag_rest]}
+        user_service.update_user_tags(user, validated_data_remove_only)
+        self.assertEqual(Logs.objects.count(), 1)
+        log_entry_remove = Logs.objects.first()
+        self.assertNotIn('Dodano tagi:', log_entry_remove.description)
+        self.assertIn('Usunięto tagi: Django, REST API', log_entry_remove.description)

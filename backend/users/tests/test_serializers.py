@@ -1,12 +1,15 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIRequestFactory 
 from common.models import Department, Tag
 from users.models import *
+from users.serializers.user_list_serializer import UserListSerializer
 from users.serializers.user_serializer import UserSerializer
 from users.serializers.student_serializer import StudentProfileSerializer
 from users.serializers.supervisor_serializer import SupervisorProfileSerializer
 from django.db import transaction
+from users.serializers.user_tags_serializer import TagsUpdateSerializer
+from users.serializers.single_user_create_serializer import SingleUserCreateSerializer
 
 User = get_user_model()
 
@@ -524,3 +527,199 @@ class SupervisorProfileSerializerTests(APITestCase):
         self.assertEqual(serializer.validated_data.get('bacherol_limit'), 9)
         self.assertEqual(serializer.validated_data.get('master_limit'), 18)
         self.assertNotIn('user', serializer.validated_data)
+
+class UserListSerializerTests(APITestCase):
+
+    def setUp(self):
+        factory = APIRequestFactory()
+        self.request = factory.get('/')
+
+        self.department_it = Department.objects.create(name="Wydział IT", description="Opis IT")
+
+        self.user_promotor = User.objects.create_user(
+            username='promotor_list',
+            password='password',
+            email='promotor_list@example.com',
+            first_name='Adam',
+            last_name='Promotor',
+            academic_title=AcademicTitle.DOCTOR,
+            role=Role.SUPERVISOR,
+            description='Opis promotora',
+            department=self.department_it
+        )
+
+        self.user_student = User.objects.create_user(
+            username='student_list',
+            password='password',
+            email='student_list@example.com',
+            first_name='Ewa',
+            last_name='Studentka',
+            academic_title=AcademicTitle.NONE,
+            role=Role.STUDENT,
+            description='Opis studentki',
+            department=self.department_it
+        )
+
+
+    def test_serialization_of_user_list(self):
+        users = User.objects.filter(username__in=['promotor_list', 'student_list'])
+        serializer = UserListSerializer(users, many=True, context={'request': self.request}) 
+        data = serializer.data
+
+        self.assertEqual(len(data), 2)
+
+        user1_data = next((item for item in data if item['email'] == 'promotor_list@example.com'), None)
+        self.assertIsNotNone(user1_data)
+        self.assertIn('url', user1_data)
+        self.assertIsNotNone(user1_data['url']) 
+        self.assertEqual(user1_data['academic_title'], AcademicTitle.DOCTOR)
+        self.assertEqual(user1_data['first_name'], 'Adam')
+        self.assertEqual(user1_data['last_name'], 'Promotor')
+        self.assertEqual(user1_data['email'], 'promotor_list@example.com')
+        self.assertEqual(user1_data['role'], Role.SUPERVISOR)
+
+        user2_data = next((item for item in data if item['email'] == 'student_list@example.com'), None)
+        self.assertIsNotNone(user2_data)
+        self.assertIn('url', user2_data)
+        self.assertIsNotNone(user2_data['url'])
+        self.assertEqual(user2_data['academic_title'], AcademicTitle.NONE)
+        self.assertEqual(user2_data['first_name'], 'Ewa')
+        self.assertEqual(user2_data['last_name'], 'Studentka')
+        self.assertEqual(user2_data['email'], 'student_list@example.com')
+        self.assertEqual(user2_data['role'], Role.STUDENT)
+
+    def test_user_list_serializer_read_only_fields(self):
+        user = User.objects.create_user(username='test_ro', password='pw', email='ro@example.com', role=Role.STUDENT)
+        data = {
+            'username': 'new_username', 
+            'first_name': 'Nowe Imie', 
+            'role': Role.SUPERVISOR 
+        }
+        serializer = UserListSerializer(instance=user, data=data, partial=True) 
+        
+        self.assertTrue(serializer.is_valid(), serializer.errors) 
+
+        self.assertNotIn('username', serializer.validated_data)
+        self.assertNotIn('first_name', serializer.validated_data)
+        self.assertNotIn('role', serializer.validated_data)
+
+
+class TagsUpdateSerializerTests(APITestCase):
+
+    def setUp(self):
+        self.tag_python = Tag.objects.create(name="Python")
+        self.tag_django = Tag.objects.create(name="Django")
+        self.tag_rest = Tag.objects.create(name="REST API")
+        self.tag_db = Tag.objects.create(name="Bazy Danych")
+
+
+    def test_valid_data_adds_tags(self):
+        data = {'to_add': [self.tag_python.id, self.tag_django.id]}
+        serializer = TagsUpdateSerializer(data=data)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        
+        self.assertIn('to_add', serializer.validated_data)
+        self.assertListEqual(
+            sorted(serializer.validated_data['to_add'], key=lambda t: t.id),
+            sorted([self.tag_python, self.tag_django], key=lambda t: t.id)
+        )
+        self.assertNotIn('to_remove', serializer.validated_data)
+
+
+    def test_valid_data_removes_tags(self):
+        data = {'to_remove': [self.tag_rest.id, self.tag_db.id]}
+        serializer = TagsUpdateSerializer(data=data)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        self.assertIn('to_remove', serializer.validated_data)
+        self.assertListEqual(
+            sorted(serializer.validated_data['to_remove'], key=lambda t: t.id),
+            sorted([self.tag_rest, self.tag_db], key=lambda t: t.id)
+        )
+        self.assertNotIn('to_add', serializer.validated_data)
+
+
+    def test_valid_data_adds_and_removes_tags(self):
+        data = {
+            'to_add': [self.tag_python.id, self.tag_rest.id],
+            'to_remove': [self.tag_django.id, self.tag_db.id]
+        }
+        serializer = TagsUpdateSerializer(data=data)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+        self.assertIn('to_add', serializer.validated_data)
+        self.assertListEqual(
+            sorted(serializer.validated_data['to_add'], key=lambda t: t.id),
+            sorted([self.tag_python, self.tag_rest], key=lambda t: t.id)
+        )
+
+        self.assertIn('to_remove', serializer.validated_data)
+        self.assertListEqual(
+            sorted(serializer.validated_data['to_remove'], key=lambda t: t.id),
+            sorted([self.tag_django, self.tag_db], key=lambda t: t.id)
+        )
+
+
+    def test_empty_lists_are_valid(self):
+        data = {'to_add': [], 'to_remove': []}
+        serializer = TagsUpdateSerializer(data=data)
+
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertIn('to_add', serializer.validated_data)
+        self.assertEqual(serializer.validated_data['to_add'], [])
+        self.assertIn('to_remove', serializer.validated_data)
+        self.assertEqual(serializer.validated_data['to_remove'], [])
+
+    def test_missing_fields_are_valid(self):
+        data1 = {'to_add': [self.tag_python.id]}
+        serializer1 = TagsUpdateSerializer(data=data1)
+        self.assertTrue(serializer1.is_valid(), serializer1.errors)
+        self.assertIn('to_add', serializer1.validated_data)
+        self.assertNotIn('to_remove', serializer1.validated_data) 
+
+        data2 = {'to_remove': [self.tag_django.id]}
+        serializer2 = TagsUpdateSerializer(data=data2)
+        self.assertTrue(serializer2.is_valid(), serializer2.errors)
+        self.assertNotIn('to_add', serializer2.validated_data)
+        self.assertIn('to_remove', serializer2.validated_data)
+
+        data3 = {}
+        serializer3 = TagsUpdateSerializer(data=data3)
+        self.assertTrue(serializer3.is_valid(), serializer3.errors)
+        self.assertNotIn('to_add', serializer3.validated_data)
+        self.assertNotIn('to_remove', serializer3.validated_data)
+
+
+    def test_invalid_tag_id_in_to_add(self):
+        data = {'to_add': [self.tag_python.id, 999]} 
+        serializer = TagsUpdateSerializer(data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('to_add', serializer.errors) 
+        self.assertIn('Invalid pk "999" - object does not exist.', str(serializer.errors['to_add']))
+
+
+    def test_invalid_tag_id_in_to_remove(self):
+        data = {'to_remove': [self.tag_rest.id, 888]} 
+        serializer = TagsUpdateSerializer(data=data)
+
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('to_remove', serializer.errors)
+        self.assertIn('Invalid pk "888" - object does not exist.', str(serializer.errors['to_remove']))
+
+    def test_non_list_input_for_fields(self):
+        data1 = {'to_add': self.tag_python.id} 
+        serializer1 = TagsUpdateSerializer(data=data1)
+        self.assertFalse(serializer1.is_valid())
+        self.assertIn('to_add', serializer1.errors)
+        self.assertIn('Expected a list of items but got type "int".', str(serializer1.errors['to_add']))
+
+        data2 = {'to_remove': "invalid"} 
+        serializer2 = TagsUpdateSerializer(data=data2)
+        self.assertFalse(serializer2.is_valid())
+        self.assertIn('to_remove', serializer2.errors)
+        self.assertIn('Expected a list of items but got type "str".', str(serializer2.errors['to_remove']))
+

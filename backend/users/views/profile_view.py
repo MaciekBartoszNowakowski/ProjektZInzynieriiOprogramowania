@@ -14,12 +14,6 @@ from users.services.user_service import user_service
 
 
 class ProfileView(RetrieveUpdateAPIView):
-    """
-    Endpoint for retrieving and updating the authenticated user's profile.
-
-    Allows users to view their own profile details and make updates.
-    The specific data structure depends on the user's role (Student, Supervisor, Coordinator/Admin).
-    """
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
@@ -29,13 +23,13 @@ class ProfileView(RetrieveUpdateAPIView):
             try:
                 return user.studentprofile
             except StudentProfile.DoesNotExist:
-                 raise NotFound("Student profile does not exist for this user.")
+                raise NotFound("Student profile does not exist for this user.")
 
         elif user.role == Role.SUPERVISOR:
             try:
                 return user.supervisorprofile
             except SupervisorProfile.DoesNotExist:
-                 raise NotFound("Supervisor profile does not exist for this user.")
+                raise NotFound("Supervisor profile does not exist for this user.")
 
         elif user.role in [Role.COORDINATOR, Role.ADMIN]:
             return user
