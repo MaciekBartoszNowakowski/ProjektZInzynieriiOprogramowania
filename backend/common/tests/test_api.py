@@ -111,7 +111,8 @@ class UserSearchAPITest(APITestCase):
         self.search_service = SearchService()
 
     def test_search_by_name(self):
-        response = self.client.get('/api/common/search-users/', {"last_name": "Ogórek"}, HTTP_AUTHORIZATION=f'JWT {self.token}')
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get('/common/search-users/', {"last_name": "Ogórek"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)  
@@ -122,7 +123,7 @@ class UserSearchAPITest(APITestCase):
         self.assertIn("Włodzimierz", names)
 
     def test_search_by_tags(self):
-        response = self.client.get('/api/common/search-users/', {"tags": ["ML", "Math"]}, HTTP_AUTHORIZATION=f'JWT {self.token}')
+        response = self.client.get('/common/search-users/', {"tags": ["ML", "Math"]}, HTTP_AUTHORIZATION=f'JWT {self.token}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         results = response.data

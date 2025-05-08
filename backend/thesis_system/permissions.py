@@ -21,4 +21,4 @@ class isAdmin(BasePermission):
     
 class isStudentOrSupervisor(BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and (request.user.role ==  Role.STUDENT or request.user.role == Role.SUPERVISOR)
+        return request.user.is_authenticated and (request.user.role == Role.STUDENT or request.user.role == Role.SUPERVISOR)
