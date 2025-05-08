@@ -1,9 +1,11 @@
 import { styles } from '@/constants/styles';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { useCallback, useState } from 'react';
-import tagName from '@/dummy_data/tagName.json';
+// import tagName from '@/dummy_data/tagName.json';
 import { useFocusEffect } from 'expo-router';
 import { getUserDataById } from '@/api/getUserDataById';
+import { getAllTags } from '@/api/getAllTags';
+import { updateTags } from '@/api/updateTags';
 
 type Props = {
     id: string;
@@ -15,7 +17,8 @@ export default function homeStudentProfile({ id }: Props) {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [department, setDepartment] = useState(0);
+    const [department, setDepartment] = useState('');
+    const [availableTags, setAvailableTags] = useState<{ id: number; name: string }[]>([]);
 
     useFocusEffect(
         useCallback(() => {
@@ -25,19 +28,29 @@ export default function homeStudentProfile({ id }: Props) {
                 try {
                     const data = await getUserDataById(id);
                     if (isActive) {
-                        console.log('Użytkownik:', data);
                         setFirstName(data.first_name);
-                        setLastName(data.first_name);
-                        setDepartment(data.department);
+                        setLastName(data.last_name);
+                        setDepartment(data.department_name);
                         setDescription(data.description);
                         setSelectedTags(data.tags);
                     }
                 } catch (error) {
-                    console.error('Błąd:', error);
+                    console.error('Error while fetching user:', error);
+                }
+            };
+
+            const fetchTags = async () => {
+                try {
+                    const data = await getAllTags();
+                    setAvailableTags(data);
+                    console.log('Tags: ', data);
+                } catch (error) {
+                    console.error('Error while fetching tags: ', error);
                 }
             };
 
             fetchUser();
+            fetchTags();
 
             return () => {
                 isActive = false;
@@ -45,11 +58,13 @@ export default function homeStudentProfile({ id }: Props) {
         }, []),
     );
 
-    const toggleTag = (tag: string) => {
+    const toggleTag = (tag: string, id: number) => {
         if (selectedTags.includes(tag)) {
             setSelectedTags((prev) => prev.filter((t) => t !== tag));
+            updateTags([], [id.toString()]);
         } else {
             setSelectedTags((prev) => [...prev, tag]);
+            updateTags([id.toString()], []);
         }
     };
 
@@ -78,10 +93,10 @@ export default function homeStudentProfile({ id }: Props) {
 
                 {isTagsOpen && (
                     <View style={styles.tagList}>
-                        {tagName.map((tag, index) => (
+                        {availableTags.map((tag) => (
                             <TouchableOpacity
-                                key={index}
-                                onPress={() => toggleTag(tag.name)}
+                                key={tag.id}
+                                onPress={() => toggleTag(tag.name, tag.id)}
                                 style={[
                                     styles.tagItem,
                                     selectedTags.includes(tag.name) && styles.tagItemSelected,

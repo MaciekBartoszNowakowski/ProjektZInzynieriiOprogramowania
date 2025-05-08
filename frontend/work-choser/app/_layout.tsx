@@ -1,6 +1,6 @@
 import 'react-native-reanimated';
 import { useState } from 'react';
-import LoginView from '@/components/custom_components/loginView';
+import LoginView from '@/app/panes/loginView';
 
 import { Slot } from 'expo-router';
 

@@ -3,7 +3,8 @@ import { styles } from '@/constants/styles';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { getUserDataById } from '@/api/getUserDataById';
-import tagName from '@/dummy_data/tagName.json';
+import { getAllTags } from '@/api/getAllTags';
+import { updateTags } from '@/api/updateTags';
 
 type Props = {
     id: string;
@@ -14,10 +15,10 @@ export default function HomeSupervisorProfile({ id }: Props) {
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [academicTitle, setAcademicTitle] = useState('');
-    const [department, setDepartment] = useState<number | null>(null);
+    const [department, setDepartment] = useState('');
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isTagsOpen, setIsTagsOpen] = useState(false);
-
+    const [availableTags, setAvailableTags] = useState<{ id: number; name: string }[]>([]);
     // const [thesises, setThesis] = useState<{ title: string; supervisor: string }[]>([]);
 
     useFocusEffect(
@@ -32,7 +33,7 @@ export default function HomeSupervisorProfile({ id }: Props) {
                         setLastName(data.last_name);
                         setEmail(data.email);
                         setAcademicTitle(data.academic_title);
-                        setDepartment(data.department);
+                        setDepartment(data.department_name);
                         setSelectedTags(data.tags ?? []);
                     }
                 } catch (error) {
@@ -40,18 +41,32 @@ export default function HomeSupervisorProfile({ id }: Props) {
                 }
             };
 
+            const fetchTags = async () => {
+                try {
+                    const data = await getAllTags();
+                    setAvailableTags(data);
+                    console.log('Tags: ', data);
+                } catch (error) {
+                    console.error('Error while fetching tags: ', error);
+                }
+            };
+
             fetchUser();
+            fetchTags();
+
             return () => {
                 isActive = false;
             };
         }, [id]),
     );
 
-    const toggleTag = (tag: string) => {
+    const toggleTag = (tag: string, id: number) => {
         if (selectedTags.includes(tag)) {
             setSelectedTags((prev) => prev.filter((t) => t !== tag));
+            updateTags([], [id.toString()]);
         } else {
             setSelectedTags((prev) => [...prev, tag]);
+            updateTags([id.toString()], []);
         }
     };
 
@@ -72,10 +87,10 @@ export default function HomeSupervisorProfile({ id }: Props) {
 
                 {isTagsOpen && (
                     <View style={styles.tagList}>
-                        {tagName.map((tag, index) => (
+                        {availableTags.map((tag) => (
                             <TouchableOpacity
-                                key={index}
-                                onPress={() => toggleTag(tag.name)}
+                                key={tag.id}
+                                onPress={() => toggleTag(tag.name, tag.id)}
                                 style={[
                                     styles.tagItem,
                                     selectedTags.includes(tag.name) && styles.tagItemSelected,

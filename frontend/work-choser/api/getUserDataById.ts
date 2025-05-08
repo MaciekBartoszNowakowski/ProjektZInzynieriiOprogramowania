@@ -12,9 +12,9 @@ export const getUserDataById = async (id: string) => {
         }
 
         const data = await response.json();
-        return data; // możesz też return data.user;
+        return data;
     } catch (error) {
-        console.error('Błąd przy pobieraniu użytkownika:', error);
+        console.error('downloading user data error:', error);
         throw error;
     }
 };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Text, Button } from 'react-native';
 import { styles } from '@/constants/styles';
+import { sendLoginData } from '@/api/sendLoginData';
 // import { storeTokens } from './storageService';
 
 type LoginViewProps = {
@@ -14,38 +15,9 @@ const LoginView = ({ setIsLoggedIn }: LoginViewProps) => {
     const [error, setError] = useState(false);
     // password Current1
 
-    const sendLoginData = async () => {
-        try {
-            const response = await fetch('http://localhost:8000/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
-                body: JSON.stringify({ username: login, password: password }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // const accessToken = data.access;
-                // const refreshToken = data.refresh;
-                // await storeTokens(accessToken, refreshToken);
-
-                console.log('Sukces: ', data);
-                setError(false);
-            } else {
-                console.error('serwer error: ', data);
-                setError(true);
-                console.log(error);
-            }
-        } catch (error) {
-            console.error('Błąd sieci: ', error);
-        }
-    };
-
     const handleLogin = async () => {
-        await sendLoginData();
+        const isError = await sendLoginData(login, password);
+        setError(isError ?? true);
         if (!error) {
             setIsLoggedIn(true);
         }
