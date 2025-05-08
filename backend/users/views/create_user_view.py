@@ -10,7 +10,7 @@ from users.serializers.single_user_create_serializer import SingleUserCreateSeri
 from users.serializers.user_serializer import UserSerializer
 from users.serializers.student_serializer import StudentProfileSerializer
 from users.serializers.supervisor_serializer import SupervisorProfileSerializer
-from users.services.account_creation_service import account_service 
+from users.services.coordinator_service import coordinator_service
 
 class UserCreateView(CreateAPIView):
     serializer_class = SingleUserCreateSerializer 
@@ -31,7 +31,7 @@ class UserCreateView(CreateAPIView):
         validated_data = serializer.validated_data
 
         try:
-            created_user = account_service.create_single_user(
+            created_user = coordinator_service.create_single_user(
                  coordinator=requesting_user, 
                  validated_data=validated_data, 
             )

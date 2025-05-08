@@ -8,7 +8,7 @@ from users.models import User, Role, StudentProfile, SupervisorProfile
 
 
 class UserListViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = User.objects.filter(Q(role=Role.STUDENT) | Q(role=Role.SUPERVISOR))
+    queryset = User.objects.filter((Q(role=Role.STUDENT) | Q(role=Role.SUPERVISOR)) & Q(is_active=True))
     permission_classes = [IsAuthenticated]
     lookup_field = 'pk'
 

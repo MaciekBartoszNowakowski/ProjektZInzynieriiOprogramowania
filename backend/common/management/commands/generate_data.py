@@ -151,6 +151,24 @@ class Command(BaseCommand):
             user.tags.set(random.sample(created_tags, random.randint(2, 6)))
 
             self.stdout.write(f'Utworzono koordynatora: {username}')
+            
+        self.stdout.write('Tworzenie superużytkownika...')
+        
+        if not User.objects.filter(username='admin').exists():
+            User.objects.create_superuser(
+                username='admin',
+                email='admin@agh.edu.pl',
+                password='użytkownik',
+                first_name='Admin',
+                last_name='Systemowy',
+                role=Role.ADMIN,
+                academic_title=AcademicTitle.NONE,
+                department=random.choice(created_departments)
+            )
+            self.stdout.write(self.style.SUCCESS('Superuser "admin" został utworzony.'))
+        else:
+            self.stdout.write('Superuser "admin" już istnieje.')
+
 
         self.stdout.write(self.style.SUCCESS('\nGenerowanie danych zakończone pomyślnie!'))
         self.stdout.write(self.style.SUCCESS('Domyślne hasło dla wszystkich wygenerowanych użytkowników: użytkownik'))

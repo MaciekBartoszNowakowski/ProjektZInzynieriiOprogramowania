@@ -60,6 +60,7 @@ class UserSerializerTests(APITestCase):
             'role',
             'description',
             'department',
+            'department_name',
             'tags'
         ]
         self.assertEqual(set(data.keys()), set(expected_fields))
@@ -76,7 +77,8 @@ class UserSerializerTests(APITestCase):
         self.assertEqual(data['academic_title'], AcademicTitle.DOCTOR)
         self.assertEqual(data['role'], Role.SUPERVISOR)
         self.assertEqual(data['description'], 'Opis użytkownika z tagami')
-        self.assertEqual(data['department'], self.department_it.id)
+        self.assertEqual(data['department'], self.department_it.id),
+        self.assertEqual(data['department_name'], self.department_it.name)
 
         expected_tags = [self.tag_python.name, self.tag_django.name]
         self.assertListEqual(sorted(data['tags']), sorted(expected_tags))

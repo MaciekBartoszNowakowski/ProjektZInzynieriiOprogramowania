@@ -28,7 +28,7 @@ Option 2 - Username authentication:
 
 **Response Schema:**
 
-Returns access and refresh tokens upon successful authentication, along with basic user information.
+Returns access and refresh tokens (not necessery, because also in cookies)upon successful authentication, along with basic user information.
 
 ```json
 {
@@ -428,7 +428,7 @@ Validation error:
 Permission error:
 ```json
 {
-  "detail": "Your user account is not assigned to any department, which prevents creating new accounts."
+  "detail": "string"
 }
 ```
 
@@ -493,6 +493,76 @@ Returns an array of tag objects with their ID and name.
     },
     // more
 ]
+```
+
+**Error Response:**
+```json
+{
+  "detail": "string"
+}
+```
+
+
+### GET/PUT/PATCH /common/department/
+
+Retrieves or modifies the department associated with coordinator.
+
+**Request Schema (GET):**
+
+No request body required.
+
+**Request Schema (PUT/PATCH):**
+
+```json
+{
+  "name": "string",
+  "description": "string"
+}
+```
+
+**Error Response:**
+```json
+{
+  "detail": "string"
+}
+```
+
+
+### GET /users/coordinator-view/
+
+Retrieves a list of managable users on coordinator's department.
+
+**Request Schema (GET):**
+
+No request body required.
+
+
+**Error Response:**
+```json
+{
+  "detail": "string"
+}
+```
+
+### GET/PUT/PATCH /users/coordinator-view/{id}
+
+Retrieves or modifies the user in coordinator's department.
+
+**Request Schema (GET):**
+
+No request body required.
+
+**Request Schema (PUT/PATCH):**
+
+```json
+{
+  "academic_title": "string",
+  "first_name": "string",
+  "last_name": "string",
+  "email": "string",
+  "role": "string",
+  "is_active": "bool"
+}
 ```
 
 **Error Response:**
