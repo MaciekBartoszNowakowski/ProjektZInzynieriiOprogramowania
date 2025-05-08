@@ -1,4 +1,4 @@
-from rest_framework.generics import APIView, CreateAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -41,7 +41,7 @@ class ThesisAddView(CreateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     
-class AvailableThesisView(APIView):
+class AvailableThesisView(ListAPIView):
     """
     Endpoint for getting all available thesis.
     Allows users to browse thesis open for application.

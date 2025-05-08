@@ -58,18 +58,17 @@ class Thesis(models.Model):
 
 
 class ThesisTags(models.Model):
-    topic_id = models.ForeignKey(
-        Thesis, 
-        null=True,
-        primary_key=True,
-        on_delete=models.SET_NULL
+    topic = models.ForeignKey(
+        Thesis,
+        on_delete=models.CASCADE
     )
-    tag_id = models.ForeignKey(
+    tag = models.ForeignKey(
         Tag, 
-        null=True,
-        primary_key=True,
-        on_delete=models.SET_NULL
+        on_delete=models.CASCADE
     )
 
+    class Meta:
+        unique_together = ('topic', 'tag')
+
     def __str__(self):
-        return f'Id pracy {self.topic_id}, id tagu {self.tag_id}'
+        return f'Id pracy {self.topic.id}, id tagu {self.tag.id}'
