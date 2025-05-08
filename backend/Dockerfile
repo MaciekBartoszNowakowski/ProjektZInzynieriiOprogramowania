@@ -24,8 +24,11 @@ RUN pip install --no-cache-dir \
     parameterized \
     pytest-cov \
     drf-spectacular \
-    ruff
-
+    django-cors-headers\
+    drf-spectacular \
+    django-cors-headers\
+    drf-spectacular \
+    django-filter
 COPY . .
 
 EXPOSE 8000

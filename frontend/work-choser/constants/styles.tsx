@@ -290,4 +290,9 @@ export const styles = StyleSheet.create({
         borderTopWidth: 1,
         borderColor: black,
     },
+    loadingStyle: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 });

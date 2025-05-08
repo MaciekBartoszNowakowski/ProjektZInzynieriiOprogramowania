@@ -1,17 +1,15 @@
-import * as SplashScreen from 'expo-splash-screen';
 import 'react-native-reanimated';
-import CustomDrawerNavigator from '@/components/custom_components/customDrawerNavigator';
 import { useState } from 'react';
 import LoginView from '@/components/custom_components/loginView';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import { Slot } from 'expo-router';
 
 export default function RootLayout() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    if (isLoggedIn === false) {
+
+    if (!isLoggedIn) {
         return <LoginView setIsLoggedIn={setIsLoggedIn} />;
-    } else {
-        return <CustomDrawerNavigator />;
     }
+
+    return <Slot />;
 }
