@@ -2,12 +2,11 @@ from rest_framework import serializers
 from thesis.models import Thesis
 
 
-class ThesisSerializer(serializers.ModelSerializer):
+class ThesisPromotorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Thesis
         fields = [
             'id',
-            'supervisor_id',
             'thesis_type',
             'name',
             'description',
@@ -17,6 +16,10 @@ class ThesisSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             'id',
-            'supervisor_id',
-            'thesis_type'
+            'thesis_type',
+            'name',
+            'description',
+            'max_students',
+            'status',
+            'language'
         ]

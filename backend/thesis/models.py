@@ -18,13 +18,10 @@ class ThesisStatus(models.TextChoices):
 
 class Thesis(models.Model):
     supervisor_id = models.ForeignKey(
-        SupervisorProfile, 
-        null=True,
-        on_delete=models.SET_NULL
+        SupervisorProfile,
+        on_delete=models.CASCADE
     )
     thesis_type = models.CharField(
-        null=True, 
-        blank=True,
         max_length=50,
         choices=ThesisType.choices
     )
@@ -40,8 +37,6 @@ class Thesis(models.Model):
         default=1
     )
     status = models.CharField(
-        null=True, 
-        blank=True,
         max_length=50,
         choices=ThesisStatus.choices,
         default=ThesisStatus.APP_OPEN
@@ -50,11 +45,14 @@ class Thesis(models.Model):
         default=timezone.now
     )
     language = models.CharField(
-        max_length=100
+        null=True, 
+        blank=True,
+        max_length=100,
+        default="English"
     )
 
     def __str__(self):
-        return f'Praca {self.thesis_type}, id promotora {self.supervisor_id}'
+        return f'Praca {self.thesis_type}, promotor: {self.supervisor_id}'
 
 
 class ThesisTags(models.Model):
@@ -71,4 +69,4 @@ class ThesisTags(models.Model):
         unique_together = ('topic', 'tag')
 
     def __str__(self):
-        return f'Id pracy {self.topic.id}, id tagu {self.tag.id}'
+        return f'Praca {self.topic.id}, Tag {self.tag.id}'

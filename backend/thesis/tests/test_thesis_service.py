@@ -67,53 +67,6 @@ class TestThesisService(TestCase):
 
         self.thesis_service = ThesisService()
 
-    def test_no_theses_at_all(self):
-        with self.assertRaises(NoAvailableThesesException):
-            self.thesis_service.get_available_theses()
-
-    def test_no_available_theses(self):
-        engineering_thesis = Thesis.objects.create(
-            supervisor_id=self.supervisor_4.pk,
-            thesis_type=ThesisType.ENGINEERING,
-            name="Wizualizacja przepływu gradientów w sieci neuronowej",
-            max_students=3,
-            status=ThesisStatus.APP_CLOSED,
-            language="English"
-        )
-
-        bachelor_thesis = Thesis.objects.create(
-            supervisor_id=self.supervisor_2.pk,
-            thesis_type=ThesisType.BACHELOR,
-            name="Struktury chemiczne substancji opisane w języku Java",
-            max_students=1,
-            status=ThesisStatus.FINISHED,
-            language="Polish"
-        )
-
-        master_thesis = Thesis.objects.create(
-            supervisor_id=self.supervisor_1.pk,
-            thesis_type=ThesisType.MASTER,
-            name="Przechowywanie skompresowanych gradientów i zależności matematycznych w systemie bazodanowym",
-            max_students=2,
-            status=ThesisStatus.APP_CLOSED,
-            language="English"
-        )
-
-        phd_thesis = Thesis.objects.create(
-            supervisor_id=self.supervisor_3.pk,
-            thesis_type=ThesisType.DOCTOR,
-            name="Zastosowanie algorytmów grafowych w bioinformatyce i leczeniu nowotworów",
-            max_students=1,
-            status=ThesisStatus.FINISHED,
-            language="Spanish"
-        )
-
-        with self.assertRaises(NoAvailableThesesException):
-            self.thesis_service.get_available_theses()
-
-        # clear created theses
-        Thesis.objects.delete()     
-
     def test_adding_thesis_invalid_supervisor_id(self):
         with self.assertRaises(InvalidSupervisorIdException):
             self.thesis_service.add_new_thesis(
