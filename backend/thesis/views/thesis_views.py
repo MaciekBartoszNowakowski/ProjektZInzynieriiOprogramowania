@@ -10,7 +10,7 @@ from thesis_system.permissions import isSupervisor
 from thesis.services.thesis_service import ThesisService
 from thesis.serializers.thesis_add_serializer import ThesisAddSerializer
 from thesis.serializers.thesis_list_serializer import ThesisListSerializer
-from thesis.serializers.thesis_promotor_serializer import ThesisPromotorSerializer
+from thesis.serializers.thesis_simple_serializer import ThesisSimpleSerializer
 from thesis.serializers.thesis_serializer import ThesisSerializer
 
 
@@ -43,8 +43,8 @@ class ThesisAddView(CreateAPIView):
     
 class AvailableThesisView(viewsets.ReadOnlyModelViewSet):
     """
-    Endpoint for getting available thesis.
-    Allows users to browse thesis open for application.
+    Endpoint for getting available theses.
+    Allows users to browse theses open for application.
     """
     queryset = Thesis.objects.filter(Q(status=ThesisStatus.APP_OPEN))
     permission_classes = [IsAuthenticated]
@@ -121,11 +121,11 @@ class NoSupervisorFoundException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
 
 
-class PromotorThesisView(ListAPIView):
+class SupervisorThesisView(ListAPIView):
     """
-    Endpoint for getting all thesis by promotor who created them.
+    Endpoint for getting all theses by supervisor who created them.
     """
-    serializer_class = ThesisPromotorSerializer
+    serializer_class = ThesisSimpleSerializer
     permission_classes = [IsAuthenticated, isSupervisor]
 
     def get_queryset(self):

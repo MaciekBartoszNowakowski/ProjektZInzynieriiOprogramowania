@@ -10,6 +10,14 @@ class ThesisType(models.TextChoices):
     DOCTOR = 'doktorska', 'Doktorska'
 
 
+THESIS_TYPE_SORT_ORDER = {
+    ThesisType.ENGINEERING: 1,
+    ThesisType.BACHELOR: 1,
+    ThesisType.MASTER: 2,
+    ThesisType.DOCTOR: 3,
+}
+
+
 class ThesisStatus(models.TextChoices):
     APP_OPEN = 'otwarta', 'Otwarta'
     APP_CLOSED = 'w realizacji', 'W realizacji'

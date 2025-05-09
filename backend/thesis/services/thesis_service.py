@@ -1,6 +1,6 @@
 from django.utils import timezone
 from thesis.models import Thesis, ThesisStatus, ThesisType
-from users.models import User, SupervisorProfile, Logs
+from users.models import User, SupervisorProfile, Logs, ACADEMIC_TITLE_SORT_ORDER, AcademicTitle
 
 
 class InvalidSupervisorIdException(ValueError):
@@ -8,6 +8,10 @@ class InvalidSupervisorIdException(ValueError):
 
 
 class InvalidThesisTypeException(ValueError):
+    pass
+
+
+class SupervisorTitleRequiredException(ValueError):
     pass
 
 
@@ -46,6 +50,20 @@ class ThesisService:
 
         if thesis_type not in self.type_limits_dict:
             raise InvalidThesisTypeException(f"Błędny typ pracy: {thesis_type}")
+        
+        academic_titles_to_add_thesis = {
+            ThesisType.BACHELOR: AcademicTitle.MASTER,
+            ThesisType.ENGINEERING: AcademicTitle.MASTER,
+            ThesisType.MASTER: AcademicTitle.DOCTOR,
+            ThesisType.DOCTOR: AcademicTitle.HABILITATED_DOCTOR
+        }
+
+        supervisor_title = supervisor.user.academic_title
+        required_title = academic_titles_to_add_thesis[thesis_type]
+        if ACADEMIC_TITLE_SORT_ORDER[supervisor_title] < ACADEMIC_TITLE_SORT_ORDER[required_title]:
+            raise SupervisorTitleRequiredException(
+                f"Ten promotor nie ma wymaganego tytułu: {required_title}, który trzeba mieć, aby dodać pracę: {thesis_type}. Tytuł naukowy promotora: {supervisor_title}."
+            )
     
         limit_left = getattr(supervisor, self.type_limits_dict[thesis_type])
         if limit_left <= 0:

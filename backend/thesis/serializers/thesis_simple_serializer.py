@@ -2,7 +2,7 @@ from rest_framework import serializers
 from thesis.models import Thesis
 
 
-class ThesisPromotorSerializer(serializers.ModelSerializer):
+class ThesisSimpleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Thesis
         fields = [
