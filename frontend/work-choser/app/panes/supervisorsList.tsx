@@ -1,38 +1,94 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { styles } from '@/constants/styles';
-import { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useState, useCallback } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
-import supervisorName from '@/dummy_data/supervisorName.json';
-import departmentName from '@/dummy_data/departmentName.json';
-import tagName from '@/dummy_data/tagName.json';
+import { getAllUsersPromotorsFilter } from '@/api/getAllUsersPromotorsFilter';
+import { getAllTags } from '@/api/getAllTags';
+import { getAllDepartments } from '@/api/getAllDepartments';
+import { User } from '@/types/user';
 
 type StackParamList = {
-    SupervisorProfile: { name: string };
+    SupervisorProfile: { id: number };
 };
 
 export default function SupervisorsList() {
     const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
 
     const [isDepartmentsOpen, setIsDepartmentsOpen] = useState(false);
-    const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+    const [selectedDepartments, setSelectedDepartment] = useState<string[]>([]);
     const [isTagsOpen, setIsTagsOpen] = useState(false);
+    const [availableTags, setAvailableTags] = useState<{ id: number; name: string }[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [availableDepartments, setAvailableDepartments] = useState<
+        { id: number; name: string }[]
+    >([]);
+    const [supervisors, setSupervisors] = useState<User[]>([]);
+    const fetchPromotors = async (useFilters = false) => {
+        const params: Record<string, any> = {
+            role: 'supervisor',
+            limit: 20,
+        };
 
-    const toggleDepartment = (department: string) => {
-        if (selectedDepartments.includes(department)) {
-            setSelectedDepartments((prev) => prev.filter((dep) => dep !== department));
-        } else {
-            setSelectedDepartments((prev) => [...prev, department]);
+        if (useFilters) {
+            if (selectedTags.length > 0) {
+                params.tags = selectedTags;
+            }
+            if (selectedDepartments.length > 0) {
+                params.department = selectedDepartments[0];
+            }
         }
+
+        const users = await getAllUsersPromotorsFilter(params);
+        setSupervisors(users);
     };
+    useFocusEffect(
+        useCallback(() => {
+            let isActive = true;
+            console.log('isActive: ', isActive);
+            setSelectedTags([]);
+            setSelectedDepartment([]);
+            const fetchTags = async () => {
+                try {
+                    const data = await getAllTags();
+                    setAvailableTags(data);
+                } catch (error) {
+                    console.error('Error while fetching tags: ', error);
+                }
+            };
+
+            const fetchDepartments = async () => {
+                try {
+                    const data = await getAllDepartments();
+                    setAvailableDepartments(data);
+                } catch (error) {
+                    console.error('Error while fetching departments:', error);
+                }
+            };
+
+            fetchPromotors(false);
+            fetchTags();
+            fetchDepartments();
+
+            return () => {
+                isActive = false;
+            };
+        }, []),
+    );
 
     const toggleTag = (tag: string) => {
         if (selectedTags.includes(tag)) {
             setSelectedTags((prev) => prev.filter((t) => t !== tag));
         } else {
             setSelectedTags((prev) => [...prev, tag]);
+        }
+    };
+
+    const toggleDepartment = (department: string) => {
+        if (selectedDepartments.includes(department)) {
+            setSelectedDepartment((prev) => prev.filter((d) => d !== department));
+        } else {
+            setSelectedDepartment((prev) => [...prev, department]);
         }
     };
 
@@ -59,7 +115,7 @@ export default function SupervisorsList() {
 
                 {isDepartmentsOpen && (
                     <View style={styles.filterList}>
-                        {departmentName.map((dept, index) => (
+                        {availableDepartments.map((dept, index) => (
                             <TouchableOpacity
                                 key={index}
                                 onPress={() => toggleDepartment(dept.name)}
@@ -98,7 +154,7 @@ export default function SupervisorsList() {
 
                 {isTagsOpen && (
                     <View style={styles.tagList}>
-                        {tagName.map((tag, index) => (
+                        {availableTags.map((tag, index) => (
                             <TouchableOpacity
                                 key={index}
                                 onPress={() => toggleTag(tag.name)}
@@ -116,23 +172,31 @@ export default function SupervisorsList() {
 
             <TouchableOpacity
                 style={styles.applyFiltersButton}
-                onPress={() => console.log('Button pressed!')}
+                onPress={() => fetchPromotors(true)}
             >
                 <Text style={styles.buttonText}>Apply filters</Text>
             </TouchableOpacity>
 
             <Text style={styles.pageTitile}>List of Supervisors</Text>
 
-            {supervisorName.map((supervisor, index) => (
+            {supervisors.map((supervisor, index) => (
                 <TouchableOpacity
                     key={index}
                     style={styles.supervisorBox}
-                    onPress={() =>
-                        navigation.navigate('SupervisorProfile', { name: supervisor.name })
-                    }
+                    onPress={() => {
+                        console.log('supervisor:', supervisor);
+                        navigation.navigate('SupervisorProfile', { id: supervisor.id });
+                    }}
                 >
-                    <Text style={styles.titleTextBox}>{supervisor.name}</Text>
-                    <Text style={styles.textBox}>Department, tags, etc.</Text>
+                    <Text style={styles.titleTextBox}>
+                        {supervisor.academic_title} {supervisor.first_name} {supervisor.last_name}
+                    </Text>
+                    <Text style={styles.textBox}>
+                        Department: {supervisor.department_name ?? '—'}
+                    </Text>
+                    <Text style={styles.textBox}>
+                        Tags: {Array.isArray(supervisor.tags) ? supervisor.tags.join(', ') : '—'}
+                    </Text>
                 </TouchableOpacity>
             ))}
 

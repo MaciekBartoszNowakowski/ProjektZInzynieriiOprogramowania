@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('dj_rest_auth.urls')),
     path('users/', include('users.urls')),
+    path('thesis/', include('thesis.urls')),
     path('common/', include('common.urls')),
 
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
