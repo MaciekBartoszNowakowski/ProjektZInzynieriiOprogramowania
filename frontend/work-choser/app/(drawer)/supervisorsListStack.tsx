@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import SupervisorList from './supervisorsList';
-import SupervisorProfile from './supervisorProfile';
-import ThesisDescription from './thesisDescription';
+import SupervisorList from '../panes/supervisorsList';
+import SupervisorProfile from '../panes/supervisorProfile';
+import ThesisDescription from '../panes/thesisDescription';
 
 const Stack = createNativeStackNavigator();
 
