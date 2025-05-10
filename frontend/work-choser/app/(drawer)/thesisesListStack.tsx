@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import ThesisesList from './thesisesList';
-import ThesisDescription from './thesisDescription';
+import ThesisesList from '../panes/thesisesList';
+import ThesisDescription from '../panes/thesisDescription';
 
 const Stack = createNativeStackNavigator();
 

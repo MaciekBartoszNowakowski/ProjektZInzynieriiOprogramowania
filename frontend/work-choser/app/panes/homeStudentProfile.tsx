@@ -1,29 +1,83 @@
 import { styles } from '@/constants/styles';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { useState } from 'react';
-import tagName from '@/dummy_data/tagName.json';
+import { useCallback, useState } from 'react';
+// import tagName from '@/dummy_data/tagName.json';
+import { useFocusEffect } from 'expo-router';
+import { getUserDataById } from '@/api/getUserDataById';
+import { getAllTags } from '@/api/getAllTags';
+import { updateTags } from '@/api/updateTags';
 
-export default function StudentsProfile() {
+type Props = {
+    id: string;
+};
+
+export default function homeStudentProfile({ id }: Props) {
     const [description, setDescription] = useState('');
     const [isTagsOpen, setIsTagsOpen] = useState(false);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [department, setDepartment] = useState('');
+    const [availableTags, setAvailableTags] = useState<{ id: number; name: string }[]>([]);
 
-    const toggleTag = (tag: string) => {
+    useFocusEffect(
+        useCallback(() => {
+            let isActive = true;
+
+            const fetchUser = async () => {
+                try {
+                    const data = await getUserDataById(id);
+                    if (isActive) {
+                        setFirstName(data.first_name);
+                        setLastName(data.last_name);
+                        setDepartment(data.department_name);
+                        setDescription(data.description);
+                        setSelectedTags(data.tags);
+                    }
+                } catch (error) {
+                    console.error('Error while fetching user:', error);
+                }
+            };
+
+            const fetchTags = async () => {
+                try {
+                    const data = await getAllTags();
+                    setAvailableTags(data);
+                    console.log('Tags: ', data);
+                } catch (error) {
+                    console.error('Error while fetching tags: ', error);
+                }
+            };
+
+            fetchUser();
+            fetchTags();
+
+            return () => {
+                isActive = false;
+            };
+        }, []),
+    );
+
+    const toggleTag = (tag: string, id: number) => {
         if (selectedTags.includes(tag)) {
             setSelectedTags((prev) => prev.filter((t) => t !== tag));
+            updateTags([], [id.toString()]);
         } else {
             setSelectedTags((prev) => [...prev, tag]);
+            updateTags([id.toString()], []);
         }
     };
 
     return (
         <ScrollView style={styles.container}>
             <View style={styles.narrowBox}>
-                <Text style={styles.titleTextBox}>Grzegorz Grzęczyszczykiewicz</Text>
+                <Text style={styles.titleTextBox}>
+                    {firstName} {lastName}
+                </Text>
             </View>
             <View style={styles.defaultBox}>
                 <Text style={styles.titleTextBox}>Department</Text>
-                <Text style={styles.textBox}>Computer Science Department</Text>
+                <Text style={styles.textBox}>{department}</Text>
             </View>
             <View style={styles.defaultBox}>
                 <Text style={styles.titleTextBox}>Grades</Text>
@@ -39,10 +93,10 @@ export default function StudentsProfile() {
 
                 {isTagsOpen && (
                     <View style={styles.tagList}>
-                        {tagName.map((tag, index) => (
+                        {availableTags.map((tag) => (
                             <TouchableOpacity
-                                key={index}
-                                onPress={() => toggleTag(tag.name)}
+                                key={tag.id}
+                                onPress={() => toggleTag(tag.name, tag.id)}
                                 style={[
                                     styles.tagItem,
                                     selectedTags.includes(tag.name) && styles.tagItemSelected,
