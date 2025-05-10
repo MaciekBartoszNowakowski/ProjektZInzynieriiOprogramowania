@@ -1,38 +1,59 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { styles } from '@/constants/styles';
 import { useEffect, useState } from 'react';
 import { useRoute, RouteProp } from '@react-navigation/native';
-// import { useNavigation } from '@react-navigation/native';
-// import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-
+import { getAllTheses } from '@/api/getAllTheses';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackParamList } from '@/types/navigationTypes';
 import { getUserDataById } from '@/api/getUserDataById';
-
-type StackParamList = {
-    SupervisorProfile: { url: string };
-};
 
 export default function SupervisorProfile() {
     const route = useRoute<RouteProp<StackParamList, 'SupervisorProfile'>>();
-    const { url } = route.params;
-    const [supervisor, setSupervisor] = useState(null);
-    // const [thesises, setThesis] = useState<{ title: string; supervisor: string }[]>([]);
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
+    const { id } = route.params;
+    const [supervisor, setSupervisor] = useState<
+        (SupervisorUser & { department_name?: string; tags?: string[] }) | null
+    >(null);
+    const [thesises, setThesises] = useState<any[]>([]);
+
+    type SupervisorUser = {
+        academic_title: string;
+        first_name: string;
+        last_name: string;
+    };
 
     useEffect(() => {
-        const fetchDetails = async () => {
-            const id = url.split('/').filter(Boolean).pop();
-            if (!id) return;
-
+        const fetchData = async () => {
             try {
-                const data = await getUserDataById(id);
-                setSupervisor(data);
+                const [userData, allTheses] = await Promise.all([
+                    getUserDataById(id),
+                    getAllTheses(),
+                ]);
+
+                console.log('Supervisor data:', userData);
+                console.log('All theses:', allTheses);
+                setSupervisor(userData);
+
+                const filteredTheses = allTheses.filter(
+                    (thesis: any) => String(thesis.supervisor_id) === String(id),
+                );
+                setThesises(filteredTheses);
             } catch (error) {
-                console.error('Error fetching supervisor details:', error);
+                console.error('Error fetching supervisor or theses:', error);
             }
         };
 
-        fetchDetails();
-    }, [url]);
+        fetchData();
+    }, [id]);
 
+    if (!supervisor) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.textBox}>Loading supervisor data...</Text>
+            </View>
+        );
+    }
     const fullName = `${supervisor.academic_title} ${supervisor.first_name} ${supervisor.last_name}`;
 
     return (
@@ -47,7 +68,7 @@ export default function SupervisorProfile() {
                     {Array.isArray(supervisor.tags) ? (
                         supervisor.tags.map((tag: string, index: number) => (
                             <View key={index} style={styles.tagItem}>
-                                <Text style={styles.tagText}>{tag}</Text>
+                                <Text style={styles.tagItem}>{tag}</Text>
                             </View>
                         ))
                     ) : (
@@ -56,29 +77,29 @@ export default function SupervisorProfile() {
                 </View>
             </View>
 
-            {/* <View style={styles.container}>
+            <View style={styles.container}>
                 <Text style={styles.pageTitile}>List of Supervisor's Thesises</Text>
-                {thesises.map((thesis, index) => (
-                    //   <View key={index} style={styles.supervisorBox}>
-                    //     <Text style={styles.titleTextBox}>{thesis.title}</Text>
-                    //     <Text style={styles.textBox}>Supervisor: {thesis.supervisor}</Text>
-                    //     <Text style={styles.textBox}>Available slots, occupied slots, pending slots</Text>
-                    //   </View>
-                    <TouchableOpacity
-                        key={index}
-                        style={styles.supervisorBox}
-                        onPress={() =>
-                            navigation.navigate('ThesisDescription', {
-                                title: thesis.title,
-                                supervisor: thesis.supervisor,
-                            })
-                        }
-                    >
-                        <Text style={styles.titleTextBox}>{thesis.title}</Text>
-                        <Text style={styles.textBox}>Supervisor: {thesis.supervisor}</Text>
-                    </TouchableOpacity>
-                ))}
-            </View> */}
+                {thesises.length > 0 ? (
+                    thesises.map((thesis, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={styles.supervisorBox}
+                            onPress={() => {
+                                const thesisId = parseInt(
+                                    thesis.url.split('/').filter(Boolean).pop() ?? '',
+                                    10,
+                                );
+                                navigation.navigate('ThesisDescription', { thesisId });
+                            }}
+                        >
+                            <Text style={styles.titleTextBox}>{thesis.name}</Text>
+                            <Text style={styles.textBox}>{thesis.description}</Text>
+                        </TouchableOpacity>
+                    ))
+                ) : (
+                    <Text style={styles.textBox}>No theses available for this supervisor.</Text>
+                )}
+            </View>
             <View style={styles.freeSpace} />
         </ScrollView>
     );

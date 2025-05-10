@@ -1,15 +1,8 @@
-interface User {
-    url: string;
-    academic_title: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    role: string;
-    department_name?: string;
-    tags?: string[];
-}
+import { User } from '@/types/user';
 
-export const getAllUsers = async (params: Record<string, any> = {}): Promise<User[]> => {
+export const getAllUsersPromotorsFilter = async (
+    params: Record<string, any> = {},
+): Promise<User[]> => {
     try {
         let query = '';
         const queryParts: string[] = [];

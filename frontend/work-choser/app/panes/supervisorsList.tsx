@@ -3,13 +3,13 @@ import { styles } from '@/constants/styles';
 import { useState, useCallback } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { getAllUsers } from '@/api/getAllUsers';
-// import { getUserDataById } from '@/api/getUserDataById';
+import { getAllUsersPromotorsFilter } from '@/api/getAllUsersPromotorsFilter';
 import { getAllTags } from '@/api/getAllTags';
 import { getAllDepartments } from '@/api/getAllDepartments';
+import { User } from '@/types/user';
 
 type StackParamList = {
-    SupervisorProfile: { url: string };
+    SupervisorProfile: { id: number };
 };
 
 export default function SupervisorsList() {
@@ -23,6 +23,7 @@ export default function SupervisorsList() {
     const [availableDepartments, setAvailableDepartments] = useState<
         { id: number; name: string }[]
     >([]);
+    const [supervisors, setSupervisors] = useState<User[]>([]);
     const fetchPromotors = async (useFilters = false) => {
         const params: Record<string, any> = {
             role: 'supervisor',
@@ -38,11 +39,9 @@ export default function SupervisorsList() {
             }
         }
 
-        const users = await getAllUsers(params);
+        const users = await getAllUsersPromotorsFilter(params);
         setSupervisors(users);
     };
-
-    const [supervisors, setSupervisors] = useState([]);
     useFocusEffect(
         useCallback(() => {
             let isActive = true;
@@ -184,9 +183,10 @@ export default function SupervisorsList() {
                 <TouchableOpacity
                     key={index}
                     style={styles.supervisorBox}
-                    onPress={() =>
-                        navigation.navigate('SupervisorProfile', { url: supervisor.url })
-                    }
+                    onPress={() => {
+                        console.log('supervisor:', supervisor);
+                        navigation.navigate('SupervisorProfile', { id: supervisor.id });
+                    }}
                 >
                     <Text style={styles.titleTextBox}>
                         {supervisor.academic_title} {supervisor.first_name} {supervisor.last_name}
