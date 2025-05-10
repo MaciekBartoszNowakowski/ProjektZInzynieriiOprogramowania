@@ -1,6 +1,6 @@
 export const getAllDepartments = async () => {
     try {
-        const response = await fetch(`http://localhost:8000/common/department`, {
+        const response = await fetch(`http://localhost:8000/common/departments`, {
             headers: {
                 'Content-Type': 'application/json',
             },

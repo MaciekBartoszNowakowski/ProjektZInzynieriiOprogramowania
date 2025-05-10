@@ -20,7 +20,9 @@ export default function SupervisorsList() {
     const [isTagsOpen, setIsTagsOpen] = useState(false);
     const [availableTags, setAvailableTags] = useState<{ id: number; name: string }[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
-    // const [availableDepartments, setAvailableDepartments] = useState<{ id: number; name: string }[]>([]);
+    const [availableDepartments, setAvailableDepartments] = useState<
+        { id: number; name: string }[]
+    >([]);
     const fetchPromotors = async (useFilters = false) => {
         const params: Record<string, any> = {
             role: 'supervisor',
@@ -59,8 +61,7 @@ export default function SupervisorsList() {
             const fetchDepartments = async () => {
                 try {
                     const data = await getAllDepartments();
-                    // setAvailableDepartments(data);
-                    console.log('Departments:', data);
+                    setAvailableDepartments(data);
                 } catch (error) {
                     console.error('Error while fetching departments:', error);
                 }
@@ -76,26 +77,22 @@ export default function SupervisorsList() {
         }, []),
     );
 
-    const toggleTag = (tag: string, id: number) => {
+    const toggleTag = (tag: string) => {
         if (selectedTags.includes(tag)) {
             setSelectedTags((prev) => prev.filter((t) => t !== tag));
-            console.log('id: ', id);
-            // updateTags([], [id.toString()]);
         } else {
             setSelectedTags((prev) => [...prev, tag]);
-            // updateTags([id.toString()], []);
         }
     };
-    // const toggleDepartment = (department: string, id: number) => {
-    //     if (selectedTags.includes(tag)) {
-    //         setSelectedDepartment((prev) => prev.filter((d) => d !== department));
-    //         console.log('id: ', id);
-    //         // updateTags([], [id.toString()]);
-    //     } else {
-    //         setSelectedDepartment((prev) => [...prev]);
-    //         // updateTags([id.toString()], []);
-    //     }
-    // };
+
+    const toggleDepartment = (department: string) => {
+        if (selectedDepartments.includes(department)) {
+            setSelectedDepartment((prev) => prev.filter((d) => d !== department));
+        } else {
+            setSelectedDepartment((prev) => [...prev, department]);
+        }
+    };
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.pageTitile}>Filters</Text>
@@ -119,10 +116,10 @@ export default function SupervisorsList() {
 
                 {isDepartmentsOpen && (
                     <View style={styles.filterList}>
-                        {selectedDepartments.map((dept, index) => (
+                        {availableDepartments.map((dept, index) => (
                             <TouchableOpacity
                                 key={index}
-                                // onPress={() => toggleDepartment(dept.name, dept.id)}
+                                onPress={() => toggleDepartment(dept.name)}
                                 style={[
                                     styles.filterItem,
                                     selectedDepartments.includes(dept.name) &&
@@ -161,7 +158,7 @@ export default function SupervisorsList() {
                         {availableTags.map((tag, index) => (
                             <TouchableOpacity
                                 key={index}
-                                onPress={() => toggleTag(tag.name, tag.id)}
+                                onPress={() => toggleTag(tag.name)}
                                 style={[
                                     styles.tagItem,
                                     selectedTags.includes(tag.name) && styles.tagItemSelected,
