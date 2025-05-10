@@ -1,7 +1,6 @@
 import { styles } from '@/constants/styles';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { useCallback, useState } from 'react';
-// import tagName from '@/dummy_data/tagName.json';
 import { useFocusEffect } from 'expo-router';
 import { getUserDataById } from '@/api/getUserDataById';
 import { getAllTags } from '@/api/getAllTags';
