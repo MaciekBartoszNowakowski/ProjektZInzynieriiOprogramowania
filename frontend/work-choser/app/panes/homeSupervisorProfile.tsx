@@ -1,16 +1,18 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { styles } from '@/constants/styles';
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getUserDataById } from '@/api/getUserDataById';
 import { getAllTags } from '@/api/getAllTags';
 import { updateTags } from '@/api/updateTags';
+import { changeDescription } from '@/api/changeDescription';
 
 type Props = {
     id: string;
 };
 
 export default function HomeSupervisorProfile({ id }: Props) {
+    const [description, setDescription] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -35,6 +37,7 @@ export default function HomeSupervisorProfile({ id }: Props) {
                         setAcademicTitle(data.academic_title);
                         setDepartment(data.department_name);
                         setSelectedTags(data.tags ?? []);
+                        setDescription(data.description);
                     }
                 } catch (error) {
                     console.error('Błąd pobierania danych promotora:', error);
@@ -59,6 +62,16 @@ export default function HomeSupervisorProfile({ id }: Props) {
             };
         }, [id]),
     );
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (description.trim()) {
+                changeDescription(description);
+            }
+        }, 800);
+
+        return () => clearTimeout(timeout);
+    }, [description]);
 
     const toggleTag = (tag: string, id: number) => {
         if (selectedTags.includes(tag)) {
@@ -111,6 +124,17 @@ export default function HomeSupervisorProfile({ id }: Props) {
                         ))}
                     </View>
                 )}
+            </View>
+
+            <View style={styles.inputBox}>
+                <Text style={styles.titleTextBox}>Description</Text>
+                <TextInput
+                    style={styles.textBox}
+                    placeholder="Enter your description..."
+                    value={description}
+                    onChangeText={setDescription}
+                    multiline
+                />
             </View>
 
             {/* <View style={styles.container}>

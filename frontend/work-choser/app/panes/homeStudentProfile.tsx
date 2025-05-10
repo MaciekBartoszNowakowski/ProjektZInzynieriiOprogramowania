@@ -1,11 +1,11 @@
 import { styles } from '@/constants/styles';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import { useCallback, useState } from 'react';
-// import tagName from '@/dummy_data/tagName.json';
+import { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { getUserDataById } from '@/api/getUserDataById';
 import { getAllTags } from '@/api/getAllTags';
 import { updateTags } from '@/api/updateTags';
+import { changeDescription } from '@/api/changeDescription';
 
 type Props = {
     id: string;
@@ -57,6 +57,16 @@ export default function homeStudentProfile({ id }: Props) {
             };
         }, []),
     );
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (description.trim()) {
+                changeDescription(description);
+            }
+        }, 800);
+
+        return () => clearTimeout(timeout);
+    }, [description]);
 
     const toggleTag = (tag: string, id: number) => {
         if (selectedTags.includes(tag)) {
