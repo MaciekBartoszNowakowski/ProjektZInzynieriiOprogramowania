@@ -23,6 +23,10 @@ class NonPositiveStudentsLimitException(ValueError):
     pass
 
 
+class InvalidThesisStatusException(ValueError):
+    pass
+
+
 class ThesisService:
     def __init__(self):
         self.type_limits_dict = {
@@ -123,6 +127,14 @@ nową pracę dyplomową (rodzaj: {thesis_type}) o ID {added_thesis.pk}"""
                 updated = True
                 changes_dict[attribute] = (old_value, new_value)
                 setattr(thesis_to_update, attribute, new_value)
+
+        status = validated_data.get("status")
+        if status not in [
+            ThesisStatus.APP_OPEN,
+            ThesisStatus.APP_CLOSED,
+            ThesisStatus.FINISHED
+        ]:
+            raise InvalidThesisStatusException(f"Błędny status pracy: {status}")
 
         max_students = validated_data.get("max_students")
         if max_students is not None and max_students < 1:
