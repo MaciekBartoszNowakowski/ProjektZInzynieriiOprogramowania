@@ -9,6 +9,7 @@ from thesis.models import Thesis, ThesisStatus
 from thesis_system.permissions import isSupervisor 
 from thesis.services.thesis_service import ThesisService
 from thesis.serializers.thesis_add_serializer import ThesisAddSerializer
+from thesis.serializers.thesis_update_serializer import ThesisUpdateSerializer
 from thesis.serializers.thesis_list_serializer import ThesisListSerializer
 from thesis.serializers.thesis_simple_serializer import ThesisSimpleSerializer
 from thesis.serializers.thesis_serializer import ThesisSerializer
@@ -66,7 +67,7 @@ class ThesisUpdateView(UpdateAPIView):
     Endpoint for updating thesis by supervisor who added it.
     Allows supervisors to update name, description, max_students, status and language.
     """
-    serializer_class = ThesisSerializer
+    serializer_class = ThesisUpdateSerializer
     permission_classes = [IsAuthenticated, isSupervisor]
 
     def update(self, request, pk):
@@ -86,7 +87,7 @@ class ThesisUpdateView(UpdateAPIView):
         except Exception as e:
             return Response({ "detail": str(e) }, status=status.HTTP_400_BAD_REQUEST)
         
-        output_serializer = ThesisSerializer(updated_thesis)
+        output_serializer = ThesisUpdateSerializer(updated_thesis)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
     
 
@@ -108,7 +109,7 @@ class ThesisDeleteView(DestroyAPIView):
         except Exception as e:
             return Response({ "detail": str(e) }, status=status.HTTP_400_BAD_REQUEST)
         
-        output_serializer = ThesisSerializer(deleted_thesis)
+        output_serializer = ThesisUpdateSerializer(deleted_thesis)
         return Response(output_serializer.data, status=status.HTTP_200_OK)
     
 
