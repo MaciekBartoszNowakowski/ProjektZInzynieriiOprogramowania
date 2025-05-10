@@ -23,6 +23,10 @@ class NonPositiveStudentsLimitException(ValueError):
     pass
 
 
+class InvalidThesisIdException(ValueError):
+    pass
+
+
 class InvalidThesisStatusException(ValueError):
     pass
 
@@ -114,7 +118,7 @@ nową pracę dyplomową (rodzaj: {thesis_type}) o ID {added_thesis.pk}"""
         try:
             thesis_to_update = Thesis.objects.get(pk=thesis_pk, supervisor_id=supervisor)
         except Thesis.DoesNotExist:
-            raise InvalidSupervisorIdException(f"Nie znaleziono pracy o id: {thesis_pk} prowadzonej przez promotora o id: {supervisor.pk}")
+            raise InvalidThesisIdException(f"Nie znaleziono pracy o id: {thesis_pk} prowadzonej przez promotora o id: {supervisor.pk}")
 
         updated = False
         changes_dict = {}
@@ -191,7 +195,7 @@ pracę dyplomową (rodzaj: {thesis_type}) o ID {thesis_to_delete.pk}"""
         except SupervisorProfile.DoesNotExist:
             raise InvalidSupervisorIdException(f"Nie znaleziono promotora o id: {supervisor.pk}")
         except Thesis.DoesNotExist:
-            raise InvalidSupervisorIdException(f"Nie znaleziono pracy o id: {thesis_pk} prowadzonej przez promotora o id: {supervisor.pk}")
+            raise InvalidThesisIdException(f"Nie znaleziono pracy o id: {thesis_pk} prowadzonej przez promotora o id: {supervisor.pk}")
         
     def get_promotor_theses(
         self,

@@ -203,6 +203,7 @@ Theses list.
 
 **Errors**:
 - 403 Forbidden: when authenticated user is not a supervisor
+- 400 Bad Request: when supervisor id is invalid (not found in the database)
 
 *Not exactly an error, but other than 200 OK:*
 - 204 No Content: if supervisor has no theses in the system.
