@@ -59,22 +59,11 @@ class Thesis(models.Model):
         default="English"
     )
 
+    tags = models.ManyToManyField(
+        Tag,
+        related_name='thesis'
+    )
+
     def __str__(self):
         return f'Praca {self.thesis_type}, promotor: {self.supervisor_id}'
 
-
-class ThesisTags(models.Model):
-    topic = models.ForeignKey(
-        Thesis,
-        on_delete=models.CASCADE
-    )
-    tag = models.ForeignKey(
-        Tag, 
-        on_delete=models.CASCADE
-    )
-
-    class Meta:
-        unique_together = ('topic', 'tag')
-
-    def __str__(self):
-        return f'Praca {self.topic.id}, Tag {self.tag.id}'
