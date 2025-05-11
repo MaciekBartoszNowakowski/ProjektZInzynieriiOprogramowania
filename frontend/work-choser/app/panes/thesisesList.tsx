@@ -7,6 +7,8 @@ import { getAllTags } from '@/api/getAllTags';
 import { getAllDepartments } from '@/api/getAllDepartments';
 import { getAllTheses } from '@/api/getAllTheses';
 import { getAllUsersPromotors } from '@/api/getAllUsersPromotors';
+import { thesis_type } from '@/custom_enums/thesis_type';
+import { searchTheses } from '@/api/searchTheses';
 
 type ThesisesListStackParamList = {
     ThesisesList: undefined;
@@ -25,9 +27,18 @@ export default function ThesisesList() {
         { id: number; name: string }[]
     >([]);
     const [availableTheses, setAvaliableTheses] = useState<
-        { id: number; name: string; url: string; supervisor_id: number }[]
+        {
+            thesis_type: any;
+            id: number;
+            name: string;
+            url: string;
+            supervisor_id: number;
+        }[]
     >([]);
     const [promotorsMap, setPromotorsMap] = useState<Record<number, string>>({});
+    const [availableThesisTypes, setAvailableThesisTypes] = useState<string[]>([]);
+    const [selectedThesisTypes, setSelectedThesisTypes] = useState<string[]>([]);
+    const [isThesisTypesOpen, setIsThesisTypesOpen] = useState(false);
 
     useFocusEffect(
         useCallback(() => {
@@ -56,6 +67,7 @@ export default function ThesisesList() {
             const fetchTheses = async () => {
                 try {
                     const data = await getAllTheses();
+                    console.log('All theses:', data);
                     setAvaliableTheses(data);
                 } catch (error) {
                     console.error('Error while fetching theses:', error);
@@ -64,8 +76,6 @@ export default function ThesisesList() {
             const fetchPromotors = async () => {
                 try {
                     const allUsers = await getAllUsersPromotors();
-                    console.log('All fetched users:', allUsers);
-
                     const map: Record<number, string> = {};
 
                     allUsers.forEach((user: any) => {
@@ -82,7 +92,6 @@ export default function ThesisesList() {
                         }
                     });
 
-                    console.log('Mapped promotors:', map);
                     setPromotorsMap(map);
                 } catch (error) {
                     console.error('Error while fetching promotors:', error);
@@ -93,7 +102,7 @@ export default function ThesisesList() {
             fetchTags();
             fetchDepartments();
             fetchPromotors();
-
+            setAvailableThesisTypes(Object.keys(thesis_type));
             return () => {
                 isActive = false;
             };
@@ -113,6 +122,14 @@ export default function ThesisesList() {
             setSelectedDepartment((prev) => prev.filter((d) => d !== department));
         } else {
             setSelectedDepartment((prev) => [...prev, department]);
+        }
+    };
+
+    const toggleThesisType = (type: string) => {
+        if (selectedThesisTypes.includes(type)) {
+            setSelectedThesisTypes((prev) => prev.filter((t) => t !== type));
+        } else {
+            setSelectedThesisTypes((prev) => [...prev, type]);
         }
     };
 
@@ -193,10 +210,55 @@ export default function ThesisesList() {
                     </View>
                 )}
             </View>
+            <View style={styles.defaultBox}>
+                <TouchableOpacity onPress={() => setIsThesisTypesOpen((prev) => !prev)}>
+                    <Text style={styles.titleTextBox}>
+                        {isThesisTypesOpen ? 'Hide Thesis Types' : 'Show Thesis Types'}
+                    </Text>
+                </TouchableOpacity>
+
+                {selectedThesisTypes.length > 0 && (
+                    <View style={styles.selectedFilters}>
+                        {selectedThesisTypes.map((type, index) => (
+                            <Text key={index} style={styles.selectedTagText}>
+                                {thesis_type[type]}
+                            </Text>
+                        ))}
+                    </View>
+                )}
+
+                {isThesisTypesOpen && (
+                    <View style={styles.filterList}>
+                        {availableThesisTypes.map((type, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                onPress={() => toggleThesisType(type)}
+                                style={[
+                                    styles.filterItem,
+                                    selectedThesisTypes.includes(type) && styles.filterItemSelected,
+                                ]}
+                            >
+                                <Text>{thesis_type[type]}</Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
+            </View>
 
             <TouchableOpacity
                 style={styles.applyFiltersButton}
-                onPress={() => console.log('Button pressed!')}
+                onPress={async () => {
+                    try {
+                        const filtered = await searchTheses({
+                            tags: selectedTags,
+                            department: selectedDepartments[0],
+                            thesis_type: selectedThesisTypes,
+                        });
+                        setAvaliableTheses(filtered);
+                    } catch (error) {
+                        console.error('Error while applying filters:', error);
+                    }
+                }}
             >
                 <Text style={styles.buttonText}>Apply filters</Text>
             </TouchableOpacity>
@@ -204,7 +266,6 @@ export default function ThesisesList() {
             <Text style={styles.pageTitile}>List of Thesises</Text>
             {availableTheses.map((thesis, index) => {
                 const thesisId = parseInt(thesis.url?.split('/').filter(Boolean).pop() ?? '', 10);
-
                 return (
                     <TouchableOpacity
                         key={index}
@@ -214,6 +275,9 @@ export default function ThesisesList() {
                         <Text style={styles.titleTextBox}>{thesis.name}</Text>
                         <Text style={styles.textBox}>
                             Supervisor: {promotorsMap[thesis.supervisor_id] ?? '—'}
+                        </Text>
+                        <Text style={styles.textBox}>
+                            Thesis type: {thesis_type[thesis.thesis_type] ?? thesis.thesis_type}
                         </Text>
                     </TouchableOpacity>
                 );
