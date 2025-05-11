@@ -155,6 +155,8 @@ class SearchService():
         department=None, 
         thesis_type=None,
         language=None,
+        sort_by = None,
+        orders = None,
         limit=10, 
         offset=0,
     ):
@@ -164,9 +166,9 @@ class SearchService():
         supervisors = self.__search_all_match(
             first_name=first_name, 
             last_name=last_name,
-            tags=tags,
             department=department,
             role="supervisor",
+            tags=None,
             sort_by=None, # not applicable
             orders=None # not applicable
         )
@@ -204,4 +206,27 @@ class SearchService():
 
         if order_by_arguments:
             topics = topics.order_by(*order_by_arguments)
+    
+        if tags:
+            topics = self._filter_by_tags(topics, tags)
+
+        if sort_by:
+            order_by_arguments = []
+            for field, order in zip(sort_by, orders):
+                if field == "academic_title":
+                    topics = self._annotate_supervisor_title_order(topics)
+                    field = "supervisor_title_order"
+
+                if tags and field == "matching_tag_count":
+                    topics = self._annotate_tag_count(topics, tags)
+                elif field == "matching_tag_count":
+                    continue
+
+                if order == "desc":
+                    order_by_arguments.append(f"-{field}")
+                else:
+                    order_by_arguments.append(field)
+
+            topics = topics.order_by(*order_by_arguments)
+
         return topics[offset:offset+limit]

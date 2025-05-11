@@ -3,7 +3,7 @@ from common.models import Department, Tag
 from users.models import User, Role, AcademicTitle
 from common.search_service import SearchService
 
-class TestSearchService(TestCase):
+class TestUserSearchService(TestCase):
     def setUp(self):
         self.department_1 = Department.objects.create(name="Wydział A")
         self.department_2 = Department.objects.create(name="Wydział B")
