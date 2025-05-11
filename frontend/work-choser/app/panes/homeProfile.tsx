@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 
 import { View, ActivityIndicator } from 'react-native';
-import HomeStudentProfile from '../panes/homeStudentProfile';
+import HomeStudentProfile from './homeStudentProfile';
 import { styles } from '@/constants/styles';
-import HomeSupervisorProfile from '../panes/homeSupervisorProfile';
+import HomeSupervisorProfile from './homeSupervisorProfile';
 import { getUserRole } from '@/api/getUserRole';
 
 export default function HomeProfile() {
