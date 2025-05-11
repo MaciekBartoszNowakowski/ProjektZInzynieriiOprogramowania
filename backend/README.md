@@ -51,3 +51,18 @@ Aby przetestować konkretny moduł:
 ```bash
 docker compose exec backend python manage.py test <nazwa_modułu>
 ```
+
+### Przykładowe dane testewe:
+
+W common.management.commands znajdują się pliki generate_data i delete_data, dzięki którym możnna tworzyć i usuwać przykładową zawartość bazy danych, wystarczy wywołać 
+
+```bash
+docker compose exec backend python manage.py generate_data
+```
+
+lub 
+
+
+```bash
+docker compose exec backend python manage.py delete_data
+```

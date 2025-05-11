@@ -22,6 +22,11 @@ RUN pip install --no-cache-dir \
     pyjwt \
     drf-yasg \
     parameterized \
+    pytest-cov \
+    drf-spectacular \
+    django-cors-headers\
+    drf-spectacular \
+    django-cors-headers\
     drf-spectacular \
     django-filter
 COPY . .
