@@ -25,7 +25,7 @@ export default function DrawerLayout() {
                 headerTitleStyle: styles.headerTextStyle,
             })}
         >
-            <Drawer.Screen name="homeProfile" options={{ title: 'Home' }} />
+            <Drawer.Screen name="homeStack" options={{ title: 'Home' }} />
             <Drawer.Screen name="supervisorsListStack" options={{ title: 'Supervisors' }} />
             <Drawer.Screen name="thesisesListStack" options={{ title: 'Thesises List' }} />
         </Drawer>

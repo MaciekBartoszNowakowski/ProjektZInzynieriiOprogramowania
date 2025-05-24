@@ -1,16 +1,23 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { styles } from '@/constants/styles';
-import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useCallback, useEffect, useState } from 'react';
 import { getUserDataById } from '@/api/getUserDataById';
 import { getAllTags } from '@/api/getAllTags';
 import { updateTags } from '@/api/updateTags';
+import { changeDescription } from '@/api/changeDescription';
+import { getAllTheses } from '@/api/getAllTheses';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackParamList } from '@/types/navigationTypes';
 
 type Props = {
     id: string;
 };
 
 export default function HomeSupervisorProfile({ id }: Props) {
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
+
+    const [description, setDescription] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -19,7 +26,7 @@ export default function HomeSupervisorProfile({ id }: Props) {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isTagsOpen, setIsTagsOpen] = useState(false);
     const [availableTags, setAvailableTags] = useState<{ id: number; name: string }[]>([]);
-    // const [thesises, setThesis] = useState<{ title: string; supervisor: string }[]>([]);
+    const [thesises, setThesises] = useState<any[]>([]);
 
     useFocusEffect(
         useCallback(() => {
@@ -28,6 +35,13 @@ export default function HomeSupervisorProfile({ id }: Props) {
             const fetchUser = async () => {
                 try {
                     const data = await getUserDataById(id);
+                    const thesesData = await getAllTheses();
+
+                    const filteredTheses = thesesData.filter(
+                        (thesis: any) => String(thesis.supervisor_id) === String(id),
+                    );
+                    setThesises(filteredTheses);
+
                     if (isActive && data) {
                         setFirstName(data.first_name);
                         setLastName(data.last_name);
@@ -35,6 +49,7 @@ export default function HomeSupervisorProfile({ id }: Props) {
                         setAcademicTitle(data.academic_title);
                         setDepartment(data.department_name);
                         setSelectedTags(data.tags ?? []);
+                        setDescription(data.description);
                     }
                 } catch (error) {
                     console.error('Błąd pobierania danych promotora:', error);
@@ -59,6 +74,16 @@ export default function HomeSupervisorProfile({ id }: Props) {
             };
         }, [id]),
     );
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (description.trim()) {
+                changeDescription(description);
+            }
+        }, 800);
+
+        return () => clearTimeout(timeout);
+    }, [description]);
 
     const toggleTag = (tag: string, id: number) => {
         if (selectedTags.includes(tag)) {
@@ -113,24 +138,40 @@ export default function HomeSupervisorProfile({ id }: Props) {
                 )}
             </View>
 
-            {/* <View style={styles.container}>
-        <Text style={styles.pageTitile}>List of Supervisor's Thesises</Text>
-        {thesises.map((thesis, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.supervisorBox}
-            onPress={() =>
-              navigation.navigate('ThesisDescription', {
-                title: thesis.title,
-                supervisor: thesis.supervisor,
-              })
-            }
-          >
-            <Text style={styles.titleTextBox}>{thesis.title}</Text>
-            <Text style={styles.textBox}>Supervisor: {thesis.supervisor}</Text>
-          </TouchableOpacity>
-        ))}
-      </View> */}
+            <View style={styles.inputBox}>
+                <Text style={styles.titleTextBox}>Description</Text>
+                <TextInput
+                    style={styles.textBox}
+                    placeholder="Enter your description..."
+                    value={description}
+                    onChangeText={setDescription}
+                    multiline
+                />
+            </View>
+
+            <View style={styles.container}>
+                <Text style={styles.pageTitile}>List of Supervisor's Thesises</Text>
+                {thesises.length > 0 ? (
+                    thesises.map((thesis, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={styles.supervisorBox}
+                            onPress={() => {
+                                const thesisId = parseInt(
+                                    thesis.url.split('/').filter(Boolean).pop() ?? '',
+                                    10,
+                                );
+                                navigation.navigate('ThesisOwnerDescription', { thesisId });
+                            }}
+                        >
+                            <Text style={styles.titleTextBox}>{thesis.name}</Text>
+                            <Text style={styles.textBox}>{thesis.description}</Text>
+                        </TouchableOpacity>
+                    ))
+                ) : (
+                    <Text style={styles.textBox}>No theses available for this supervisor.</Text>
+                )}
+            </View>
 
             <View style={styles.freeSpace} />
         </ScrollView>
