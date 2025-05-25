@@ -25,9 +25,9 @@ export default function DrawerLayout() {
                 headerTitleStyle: styles.headerTextStyle,
             })}
         >
-            <Drawer.Screen name="homeStack" options={{ title: 'Home' }} />
-            <Drawer.Screen name="supervisorsListStack" options={{ title: 'Supervisors' }} />
-            <Drawer.Screen name="thesisesListStack" options={{ title: 'Thesises List' }} />
+            <Drawer.Screen name="homeStack" options={{ title: 'Strona główna' }} />
+            <Drawer.Screen name="supervisorsListStack" options={{ title: 'Promotorzy' }} />
+            <Drawer.Screen name="thesisesListStack" options={{ title: 'Prace dyplomowe' }} />
         </Drawer>
     );
 }

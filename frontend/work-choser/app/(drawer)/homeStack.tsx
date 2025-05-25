@@ -10,12 +10,12 @@ export default function HomeStack() {
             <Stack.Screen
                 name="HomeProfile"
                 component={HomeProfile}
-                options={{ title: 'HomeProfile' }}
+                options={{ title: 'Strona główna' }}
             />
             <Stack.Screen
                 name="ThesisOwnerDescription"
                 component={ThesisOwnerDescription}
-                options={{ title: 'Thesis Description' }}
+                options={{ title: 'Opis pracy dyplomowej' }}
             />
         </Stack.Navigator>
     );

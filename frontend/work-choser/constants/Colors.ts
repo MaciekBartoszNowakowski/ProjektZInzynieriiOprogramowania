@@ -16,7 +16,7 @@ export const listGrey = '#f0f0f0';
 export const itemGrey = '#f5f5f5';
 export const selectedItemGreen = '#c8e6c9';
 export const mediumGrey = '#ddd';
-
+export const primaryBlue = '#0a7ea4';
 export const Colors = {
     light: {
         text: '#11181C',

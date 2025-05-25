@@ -47,7 +47,9 @@ const LoginView = ({ setIsLoggedIn }: LoginViewProps) => {
                 <Button title="login" onPress={handleLogin} />
             </View>
 
-            {error ? <Text style={styles.loginError}>Login or Password is wrong</Text> : null}
+            {error ? (
+                <Text style={styles.loginError}>Login albo hasło jest nieprawidłowe</Text>
+            ) : null}
         </View>
     );
 };

@@ -10,12 +10,12 @@ export default function ThesisesListStack() {
             <Stack.Screen
                 name="ThesisesList"
                 component={ThesisesList}
-                options={{ title: 'Theses List', headerShown: false }}
+                options={{ title: 'Lista prac dyplomowych', headerShown: false }}
             />
             <Stack.Screen
                 name="ThesisDescription"
                 component={ThesisDescription}
-                options={{ title: 'Thesis Description' }}
+                options={{ title: 'Opis pracy dyplomowej' }}
             />
         </Stack.Navigator>
     );

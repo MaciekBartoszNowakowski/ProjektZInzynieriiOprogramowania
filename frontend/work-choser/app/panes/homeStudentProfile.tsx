@@ -86,19 +86,19 @@ export default function homeStudentProfile({ id }: Props) {
                 </Text>
             </View>
             <View style={styles.defaultBox}>
-                <Text style={styles.titleTextBox}>Department</Text>
+                <Text style={styles.titleTextBox}>Wydział</Text>
                 <Text style={styles.textBox}>{department}</Text>
             </View>
             <View style={styles.defaultBox}>
-                <Text style={styles.titleTextBox}>Grades</Text>
+                <Text style={styles.titleTextBox}>Oceny</Text>
             </View>
             <View style={styles.defaultBox}>
-                <Text style={styles.titleTextBox}>Diploma Thesis</Text>
+                <Text style={styles.titleTextBox}>Praca dyplomowa</Text>
             </View>
 
             <View style={styles.defaultBox}>
                 <TouchableOpacity onPress={() => setIsTagsOpen((prev) => !prev)}>
-                    <Text style={styles.titleTextBox}>Tags</Text>
+                    <Text style={styles.titleTextBox}>Tagi</Text>
                 </TouchableOpacity>
 
                 {isTagsOpen && (
@@ -130,10 +130,10 @@ export default function homeStudentProfile({ id }: Props) {
             </View>
 
             <View style={styles.inputBox}>
-                <Text style={styles.titleTextBox}>Description</Text>
+                <Text style={styles.titleTextBox}>Opis</Text>
                 <TextInput
                     style={styles.textBox}
-                    placeholder="Enter your description..."
+                    placeholder="Wprowadź swój opis..."
                     value={description}
                     onChangeText={setDescription}
                     multiline

@@ -50,7 +50,7 @@ export default function SupervisorProfile() {
     if (!supervisor) {
         return (
             <View style={styles.container}>
-                <Text style={styles.textBox}>Loading supervisor data...</Text>
+                <Text style={styles.textBox}>Trwa pobieranie danych</Text>
             </View>
         );
     }
@@ -60,10 +60,10 @@ export default function SupervisorProfile() {
         <ScrollView style={styles.container}>
             <View style={styles.defaultBox}>
                 <Text style={styles.titleTextBox}>{fullName}</Text>
-                <Text style={styles.textBox}>Department: {supervisor.department_name ?? '—'}</Text>
+                <Text style={styles.textBox}>Wydział: {supervisor.department_name ?? '—'}</Text>
             </View>
             <View style={styles.defaultBox}>
-                <Text style={styles.titleTextBox}>Tags</Text>
+                <Text style={styles.titleTextBox}>Tagi</Text>
                 <View style={styles.tagList}>
                     {Array.isArray(supervisor.tags) ? (
                         supervisor.tags.map((tag: string, index: number) => (
@@ -78,7 +78,7 @@ export default function SupervisorProfile() {
             </View>
 
             <View style={styles.container}>
-                <Text style={styles.pageTitile}>List of Supervisor's Thesises</Text>
+                <Text style={styles.pageTitile}>Lista wszystkich prac promotora</Text>
                 {thesises.length > 0 ? (
                     thesises.map((thesis, index) => (
                         <TouchableOpacity
@@ -97,7 +97,9 @@ export default function SupervisorProfile() {
                         </TouchableOpacity>
                     ))
                 ) : (
-                    <Text style={styles.textBox}>No theses available for this supervisor.</Text>
+                    <Text style={styles.textBox}>
+                        Prowadzący aktualnie nie udostępnia prac dyplomowych
+                    </Text>
                 )}
             </View>
             <View style={styles.freeSpace} />

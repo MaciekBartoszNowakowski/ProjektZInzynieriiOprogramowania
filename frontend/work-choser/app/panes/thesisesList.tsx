@@ -135,12 +135,12 @@ export default function ThesisesList() {
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.pageTitile}>Filters</Text>
+            <Text style={styles.pageTitile}>Filtry</Text>
 
             <View style={styles.defaultBox}>
                 <TouchableOpacity onPress={() => setIsDepartmentsOpen((prev) => !prev)}>
                     <Text style={styles.titleTextBox}>
-                        {isDepartmentsOpen ? 'Hide Departments' : 'Show Departments'}
+                        {isDepartmentsOpen ? 'Ukryj wydziały' : 'Pokaż wydziały'}
                     </Text>
                 </TouchableOpacity>
 
@@ -179,7 +179,7 @@ export default function ThesisesList() {
                     style={styles.filterHeader}
                 >
                     <Text style={styles.titleTextBox}>
-                        {isTagsOpen ? 'Hide Tags' : 'Show Tags'}
+                        {isTagsOpen ? 'Ukryj tagi' : 'Pokaż tagi'}
                     </Text>
                 </TouchableOpacity>
 
@@ -213,7 +213,7 @@ export default function ThesisesList() {
             <View style={styles.defaultBox}>
                 <TouchableOpacity onPress={() => setIsThesisTypesOpen((prev) => !prev)}>
                     <Text style={styles.titleTextBox}>
-                        {isThesisTypesOpen ? 'Hide Thesis Types' : 'Show Thesis Types'}
+                        {isThesisTypesOpen ? 'Ukryj typ prac' : 'Pokaż typ prac'}
                     </Text>
                 </TouchableOpacity>
 
@@ -260,10 +260,10 @@ export default function ThesisesList() {
                     }
                 }}
             >
-                <Text style={styles.buttonText}>Apply filters</Text>
+                <Text style={styles.buttonText}>Zastosuj filtry</Text>
             </TouchableOpacity>
 
-            <Text style={styles.pageTitile}>List of Thesises</Text>
+            <Text style={styles.pageTitile}>Lista dostępnych prac</Text>
             {availableTheses.map((thesis, index) => {
                 const thesisId = parseInt(thesis.url?.split('/').filter(Boolean).pop() ?? '', 10);
                 return (
@@ -274,10 +274,10 @@ export default function ThesisesList() {
                     >
                         <Text style={styles.titleTextBox}>{thesis.name}</Text>
                         <Text style={styles.textBox}>
-                            Supervisor: {promotorsMap[thesis.supervisor_id] ?? '—'}
+                            Promotor: {promotorsMap[thesis.supervisor_id] ?? '—'}
                         </Text>
                         <Text style={styles.textBox}>
-                            Thesis type: {thesis_type[thesis.thesis_type] ?? thesis.thesis_type}
+                            Typ pracy: {thesis_type[thesis.thesis_type] ?? thesis.thesis_type}
                         </Text>
                     </TouchableOpacity>
                 );

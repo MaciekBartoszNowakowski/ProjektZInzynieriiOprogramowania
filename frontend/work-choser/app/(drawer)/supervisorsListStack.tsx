@@ -11,17 +11,17 @@ export default function SupervisorsListStack() {
             <Stack.Screen
                 name="SupervisorsList"
                 component={SupervisorList}
-                options={{ title: 'Supervisors List' }}
+                options={{ title: 'Lista promotorów' }}
             />
             <Stack.Screen
                 name="SupervisorProfile"
                 component={SupervisorProfile}
-                options={{ title: 'Supervisor Profile' }}
+                options={{ title: 'Profil promotora' }}
             />
             <Stack.Screen
                 name="ThesisDescription"
                 component={ThesisDescription}
-                options={{ title: 'Thesis Description' }}
+                options={{ title: 'Opis pracy dyplomowej' }}
             />
         </Stack.Navigator>
     );

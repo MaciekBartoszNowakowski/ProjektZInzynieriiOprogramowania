@@ -56,14 +56,14 @@ export const styles = StyleSheet.create({
         marginTop: 30,
     },
     titleTextBox: {
-        fontSize: 16,
+        fontSize: 24,
         fontWeight: 'bold',
         color: charcoalGrey,
         fontFamily: 'SpaceMono',
         textAlign: 'center',
     },
     textBox: {
-        fontSize: 16,
+        fontSize: 24,
         color: black,
         fontFamily: 'SpaceMono',
         textAlign: 'center',
@@ -110,7 +110,7 @@ export const styles = StyleSheet.create({
     },
     buttonText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: 24,
         fontWeight: 'bold',
     },
     slotValue: {
@@ -118,15 +118,15 @@ export const styles = StyleSheet.create({
         color: 'red',
     },
     supervisorBox: {
-        width: '80%',
-        height: 70,
+        width: '100%',
+        // height: 100,
         backgroundColor: brightGrey,
         borderBottomWidth: 1,
         borderBottomColor: mediumGrey,
-        alignSelf: 'center',
+        // alignSelf: 'center',
     },
     pageTitile: {
-        fontSize: 36,
+        fontSize: 48,
         fontWeight: 'bold',
         color: greenColor,
         fontFamily: 'SpaceMono',
@@ -205,7 +205,7 @@ export const styles = StyleSheet.create({
         borderRadius: 12,
         marginRight: 8,
         marginBottom: 8,
-        fontSize: 14,
+        fontSize: 20,
     },
     freeSpace: {
         height: 50,
@@ -243,7 +243,7 @@ export const styles = StyleSheet.create({
     menuNameStyle: {
         color: listGrey,
         textAlign: 'center',
-        fontSize: 30,
+        fontSize: 40,
     },
     loginContainer: {
         padding: 24,
@@ -251,7 +251,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     loginLabel: {
-        fontSize: 16,
+        fontSize: 20,
         marginBottom: 4,
     },
     loginInput: {
@@ -260,7 +260,7 @@ export const styles = StyleSheet.create({
         borderRadius: 6,
         padding: 12,
         marginBottom: 16,
-        fontSize: 16,
+        fontSize: 20,
     },
     loginButtonContainer: {
         marginTop: 8,
@@ -274,11 +274,13 @@ export const styles = StyleSheet.create({
         color: listGrey,
         fontWeight: 'bold' as const,
         marginLeft: 10,
+        fontSize: 24,
     },
     inactiveLabelStyle: {
         color: listGrey,
         fontWeight: 'normal' as const,
         marginLeft: 10,
+        fontSize: 24,
     },
     activeItemStyle: {
         backgroundColor: selectedItemGreen,
@@ -306,7 +308,7 @@ export const styles = StyleSheet.create({
         paddingBottom: 16,
     },
     titleStudentListText: {
-        fontSize: 16,
+        fontSize: 24,
         fontWeight: 'bold',
         color: charcoalGrey,
         fontFamily: 'SpaceMono',

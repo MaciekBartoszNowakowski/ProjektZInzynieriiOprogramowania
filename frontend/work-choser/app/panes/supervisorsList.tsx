@@ -94,12 +94,12 @@ export default function SupervisorsList() {
 
     return (
         <ScrollView style={styles.container}>
-            <Text style={styles.pageTitile}>Filters</Text>
+            <Text style={styles.pageTitile}>Filtry</Text>
 
             <View style={styles.defaultBox}>
                 <TouchableOpacity onPress={() => setIsDepartmentsOpen((prev) => !prev)}>
                     <Text style={styles.titleTextBox}>
-                        {isDepartmentsOpen ? 'Hide Departments' : 'Show Departments'}
+                        {isDepartmentsOpen ? 'Ukryj wydziały' : 'Pokaż wydziały'}
                     </Text>
                 </TouchableOpacity>
 
@@ -138,7 +138,7 @@ export default function SupervisorsList() {
                     style={styles.filterHeader}
                 >
                     <Text style={styles.titleTextBox}>
-                        {isTagsOpen ? 'Hide Tags' : 'Show Tags'}
+                        {isTagsOpen ? 'Ukryj tagi' : 'Pokaż tagi'}
                     </Text>
                 </TouchableOpacity>
 
@@ -174,10 +174,10 @@ export default function SupervisorsList() {
                 style={styles.applyFiltersButton}
                 onPress={() => fetchPromotors(true)}
             >
-                <Text style={styles.buttonText}>Apply filters</Text>
+                <Text style={styles.buttonText}>Zastosuj filtry</Text>
             </TouchableOpacity>
 
-            <Text style={styles.pageTitile}>List of Supervisors</Text>
+            <Text style={styles.pageTitile}>Lista promotorów</Text>
 
             {supervisors.map((supervisor, index) => (
                 <TouchableOpacity
@@ -191,11 +191,9 @@ export default function SupervisorsList() {
                     <Text style={styles.titleTextBox}>
                         {supervisor.academic_title} {supervisor.first_name} {supervisor.last_name}
                     </Text>
+                    <Text style={styles.textBox}>Wydział: {supervisor.department_name ?? '—'}</Text>
                     <Text style={styles.textBox}>
-                        Department: {supervisor.department_name ?? '—'}
-                    </Text>
-                    <Text style={styles.textBox}>
-                        Tags: {Array.isArray(supervisor.tags) ? supervisor.tags.join(', ') : '—'}
+                        Tagi: {Array.isArray(supervisor.tags) ? supervisor.tags.join(', ') : '—'}
                     </Text>
                 </TouchableOpacity>
             ))}

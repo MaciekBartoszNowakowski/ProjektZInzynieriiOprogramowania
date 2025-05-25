@@ -102,12 +102,12 @@ export default function HomeSupervisorProfile({ id }: Props) {
                     {academicTitle} {firstName} {lastName}
                 </Text>
                 <Text style={styles.textBox}>E-mail: {email || 'Brak'}</Text>
-                <Text style={styles.textBox}>Department: {department ?? 'Brak'}</Text>
+                <Text style={styles.textBox}>Wydział: {department ?? 'Brak'}</Text>
             </View>
 
             <View style={styles.defaultBox}>
                 <TouchableOpacity onPress={() => setIsTagsOpen((prev) => !prev)}>
-                    <Text style={styles.titleTextBox}>Tags</Text>
+                    <Text style={styles.titleTextBox}>Tagi</Text>
                 </TouchableOpacity>
 
                 {isTagsOpen && (
@@ -139,10 +139,10 @@ export default function HomeSupervisorProfile({ id }: Props) {
             </View>
 
             <View style={styles.inputBox}>
-                <Text style={styles.titleTextBox}>Description</Text>
+                <Text style={styles.titleTextBox}>Opis</Text>
                 <TextInput
                     style={styles.textBox}
-                    placeholder="Enter your description..."
+                    placeholder="Wprowadź swój opis..."
                     value={description}
                     onChangeText={setDescription}
                     multiline
@@ -150,7 +150,7 @@ export default function HomeSupervisorProfile({ id }: Props) {
             </View>
 
             <View style={styles.container}>
-                <Text style={styles.pageTitile}>List of Supervisor's Thesises</Text>
+                <Text style={styles.pageTitile}>Lista wszystkich prac promotora</Text>
                 {thesises.length > 0 ? (
                     thesises.map((thesis, index) => (
                         <TouchableOpacity
@@ -169,7 +169,9 @@ export default function HomeSupervisorProfile({ id }: Props) {
                         </TouchableOpacity>
                     ))
                 ) : (
-                    <Text style={styles.textBox}>No theses available for this supervisor.</Text>
+                    <Text style={styles.textBox}>
+                        Prowadzący aktualnie nie udostępnia prac dyplomowych
+                    </Text>
                 )}
             </View>
 
