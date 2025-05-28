@@ -37,8 +37,7 @@ class StudentSubmissionStatusView(RetrieveAPIView):
                     'message': 'Nie masz aktywnej aplikacji na żadną pracę dyplomową'
                 }
             
-            serializer = SubmissionStatusSerializer(response_data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(response_data, status=status.HTTP_200_OK)
         
         except InvalidStudentIdException as e:
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
