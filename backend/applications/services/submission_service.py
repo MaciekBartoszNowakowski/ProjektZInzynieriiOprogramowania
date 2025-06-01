@@ -1,5 +1,5 @@
 from django.utils import timezone
-from applications.models import Submission
+from applications.models import Submission, SubmissionStatus
 from thesis.models import Thesis, ThesisStatus
 from users.models import StudentProfile, SupervisorProfile, User, Logs
 
@@ -28,6 +28,14 @@ class ThesisFullException(ValueError):
     pass
 
 
+class SubmissionAlreadyResolvedException(ValueError):
+    pass
+
+
+class SubmissionNotAcceptedException(ValueError):
+    pass
+
+
 class SubmissionService:
     def submit_to_thesis(self, student: User, thesis_id: int):
         try:
@@ -49,20 +57,11 @@ class SubmissionService:
                 f"Student jest już zapisany na pracę: {existing_submission.thesis.name} (ID: {existing_submission.thesis.id})"
             )
         
-        current_submissions = Submission.objects.filter(thesis=thesis).count()
-        if current_submissions >= thesis.max_students:
-            raise ThesisFullException(f"Praca '{thesis.name}' osiągnęła maksymalną liczbę studentów ({thesis.max_students})")
-        
         submission = Submission.objects.create(
             student=student_profile,
-            thesis=thesis
+            thesis=thesis,
+            status=SubmissionStatus.OPEN
         )
-        
-        updated_submissions_count = Submission.objects.filter(thesis=thesis).count()
-        if updated_submissions_count >= thesis.max_students:
-            thesis.status = ThesisStatus.APP_CLOSED
-            thesis.updated_at = timezone.now()
-            thesis.save()
         
         log_description = f"""Student o ID {student.pk} ({student_profile.index_number}) 
 zapisał się na pracę dyplomową '{thesis.name}' (ID: {thesis.id}) 
@@ -76,6 +75,7 @@ prowadzoną przez {thesis.supervisor_id.user.get_full_name()}"""
         
         return submission
     
+
     def cancel_submission(self, student: User):
         try:
             student_profile = StudentProfile.objects.get(pk=student.pk)
@@ -93,12 +93,6 @@ prowadzoną przez {thesis.supervisor_id.user.get_full_name()}"""
         
         submission.delete()
         
-        remaining_submissions = Submission.objects.filter(thesis=thesis).count()
-        if thesis.status == ThesisStatus.APP_CLOSED and remaining_submissions < thesis.max_students:
-            thesis.status = ThesisStatus.APP_OPEN
-            thesis.updated_at = timezone.now()
-            thesis.save()
-        
         log_description = f"""Student o ID {student.pk} ({student_profile.index_number}) 
 anulował zgłoszenie na pracę '{thesis_name}' (ID: {thesis_id})"""
         
@@ -110,6 +104,7 @@ anulował zgłoszenie na pracę '{thesis_name}' (ID: {thesis_id})"""
         
         return {"message": f"Anulowano zgłoszenie na pracę '{thesis_name}'"}
     
+
     def get_student_submission(self, student: User):
         try:
             student_profile = StudentProfile.objects.get(pk=student.pk)
@@ -119,7 +114,8 @@ anulował zgłoszenie na pracę '{thesis_name}' (ID: {thesis_id})"""
             raise InvalidStudentIdException(f"Nie znaleziono studenta o id: {student.pk}")
         except Submission.DoesNotExist:
             return None
-        
+
+     
     def get_thesis_with_submissions(self, supervisor: User, thesis_id: int):
         try:
             supervisor_profile = SupervisorProfile.objects.get(pk=supervisor.pk)
@@ -135,6 +131,7 @@ anulował zgłoszenie na pracę '{thesis_name}' (ID: {thesis_id})"""
         except Thesis.DoesNotExist:
             raise InvalidThesisIdException(f"Nie znaleziono pracy o id: {thesis_id} prowadzonej przez promotora o id: {supervisor.pk}")
 
+
     def accept_submission(self, supervisor: User, submission_id: int):
         try:
             supervisor_profile = SupervisorProfile.objects.get(pk=supervisor.pk)
@@ -149,15 +146,26 @@ anulował zgłoszenie na pracę '{thesis_name}' (ID: {thesis_id})"""
         except Submission.DoesNotExist:
             raise ValueError(f"Nie znaleziono zgłoszenia o id: {submission_id} dla tego promotora")
         
+        if submission.status != SubmissionStatus.OPEN:
+            raise SubmissionAlreadyResolvedException(f"Nie można zaakceptować tego zgłoszenia, bo nie jest aktywne! Stan zgłoszenia: {submission.status}")
+
         thesis = submission.thesis
+        accepted_students = Submission.objects.filter(
+            thesis=thesis, 
+            status=SubmissionStatus.ACCEPTED
+        ).count()
+
+        if accepted_students >= thesis.max_students:
+            raise ThesisFullException(f"Praca '{thesis.name}' osiągnęła maksymalną liczbę studentów ({thesis.max_students})")
         
-        if thesis.status == ThesisStatus.APP_OPEN:
+        submission.status = SubmissionStatus.ACCEPTED
+        submission.save()
+
+        if accepted_students == thesis.max_students - 1: # last student has just been accepted
             thesis.status = ThesisStatus.APP_CLOSED
             thesis.updated_at = timezone.now()
             thesis.save()
-            
-            Submission.objects.filter(thesis=thesis).exclude(pk=submission_id).delete()
-        
+                
         log_description = f"Promotor o ID {supervisor.pk} zaakceptował zgłoszenie studenta {submission.student.user.get_full_name()} (ID: {submission.student.pk}) na pracę '{thesis.name}' (ID: {thesis.id})"
         
         Logs.objects.create(
@@ -167,6 +175,7 @@ anulował zgłoszenie na pracę '{thesis_name}' (ID: {thesis_id})"""
         )
         
         return submission
+
 
     def reject_submission(self, supervisor: User, submission_id: int):
         try:
@@ -182,17 +191,14 @@ anulował zgłoszenie na pracę '{thesis_name}' (ID: {thesis_id})"""
         except Submission.DoesNotExist:
             raise ValueError(f"Nie znaleziono zgłoszenia o id: {submission_id} dla tego promotora")
         
+        if submission.status != SubmissionStatus.OPEN:
+            raise SubmissionAlreadyResolvedException(f"Nie można odrzucić tego zgłoszenia, bo nie jest aktywne! Stan zgłoszenia: {submission.status}")
+
         thesis = submission.thesis
         student_name = submission.student.user.get_full_name()
         student_id = submission.student.pk
-        
-        submission.delete()
-        
-        remaining_submissions = Submission.objects.filter(thesis=thesis).count()
-        if thesis.status == ThesisStatus.APP_CLOSED and remaining_submissions < thesis.max_students:
-            thesis.status = ThesisStatus.APP_OPEN
-            thesis.updated_at = timezone.now()
-            thesis.save()
+        submission.status = SubmissionStatus.REJECTED
+        submission.save()
         
         log_description = f"Promotor o ID {supervisor.pk} odrzucił zgłoszenie studenta {student_name} (ID: {student_id}) na pracę '{thesis.name}' (ID: {thesis.id})"
         
@@ -203,6 +209,7 @@ anulował zgłoszenie na pracę '{thesis_name}' (ID: {thesis_id})"""
         )
         
         return {"message": f"Odrzucono zgłoszenie studenta {student_name}"}
+
 
     def remove_student_from_thesis(self, supervisor: User, submission_id: int):
         try:
@@ -218,14 +225,21 @@ anulował zgłoszenie na pracę '{thesis_name}' (ID: {thesis_id})"""
         except Submission.DoesNotExist:
             raise ValueError(f"Nie znaleziono zgłoszenia o id: {submission_id} dla tego promotora")
         
+        if submission.status != SubmissionStatus.ACCEPTED:
+            raise SubmissionNotAcceptedException(f"Nie można usunąć niezaakceptowanego zgłoszenia! Stan zgłoszenia: {submission.status}")
+
         thesis = submission.thesis
         student_name = submission.student.user.get_full_name()
         student_id = submission.student.pk
         
         submission.delete()
         
-        remaining_submissions = Submission.objects.filter(thesis=thesis).count()
-        if remaining_submissions < thesis.max_students and thesis.status == ThesisStatus.APP_CLOSED:
+        remaining_accepted_submissions = Submission.objects.filter(
+            thesis=thesis,
+            status=SubmissionStatus.ACCEPTED
+        ).count()
+
+        if remaining_accepted_submissions < thesis.max_students and thesis.status == ThesisStatus.APP_CLOSED:
             thesis.status = ThesisStatus.APP_OPEN
             thesis.updated_at = timezone.now()
             thesis.save()

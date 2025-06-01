@@ -40,10 +40,8 @@ Created submission with thesis and student details.
 **Errors**:
 - 403 Forbidden: when authenticated user is not a student
 - 400 Bad Request - one of the following:
-  - thesis_id is invalid (not found in database)
   - thesis is not available for applications (status != APP_OPEN)
   - student is already assigned to another thesis
-  - thesis has reached maximum number of students
 - 404 Not Found: when student or thesis not found in database
 
 ### DELETE /applications/cancel/
@@ -95,7 +93,8 @@ If student has submission:
       "status": "string",
       "language": "string",
       "supervisor_name": "string"
-    }
+    },
+    "status": "string"
   }
 }
 ```
@@ -144,7 +143,8 @@ No request body required.
         "status": "string",
         "language": "string",
         "supervisor_name": "string"
-      }
+      },
+      "status": "string"
     }
   ]
 }
@@ -180,13 +180,15 @@ Accepted submission details:
     "status": "string",
     "language": "string",
     "supervisor_name": "string"
-  }
+  },
+  "status": "string"
 }
 ```
 
 **Errors**:
 - 403 Forbidden: when authenticated user is not a supervisor
 - 404 Not Found: when supervisor or submission not found, or submission doesn't belong to supervisor's thesis
+- 400 Bad Request: when submission has already been resolved (i. e. accepted or rejected) or maximum number of students for this thesis has been accepted
 
 ### POST /applications/submissions/{submission_id}/reject/
 
@@ -207,6 +209,7 @@ No request body required.
 **Errors**:
 - 403 Forbidden: when authenticated user is not a supervisor
 - 404 Not Found: when supervisor or submission not found, or submission doesn't belong to supervisor's thesis
+- 400 Bad Request: when submission has already been resolved (i. e. accepted or rejected)
 
 ### DELETE /applications/submissions/{submission_id}/remove/
 
@@ -227,3 +230,4 @@ No request body required.
 **Errors**:
 - 403 Forbidden: when authenticated user is not a supervisor
 - 404 Not Found: when supervisor or submission not found, or submission doesn't belong to supervisor's thesis
+- 400 Bad Request: when submission has not been accepted - it has been rejected or is still yet to be resolved

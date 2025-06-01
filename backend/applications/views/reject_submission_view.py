@@ -1,12 +1,8 @@
-from applications.serializers.submission_create_serializer import SubmissionCreateSerializer
-from applications.serializers.submission_serializer import SubmissionSerializer
-from applications.serializers.submission_status_serializer import SubmissionStatusSerializer
-from applications.services.submission_service import InvalidStudentIdException, InvalidSupervisorIdException, InvalidThesisIdException, StudentAlreadyAssignedException, SubmissionService, ThesisFullException, ThesisNotAvailableException
+from applications.services.submission_service import InvalidSupervisorIdException, SubmissionAlreadyResolvedException, SubmissionService
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from thesis.services.thesis_service import ThesisService
 from users.models import Role
 
 class RejectSubmissionView(APIView):
@@ -27,6 +23,8 @@ class RejectSubmissionView(APIView):
         
         except InvalidSupervisorIdException as e:
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except SubmissionAlreadyResolvedException as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:

@@ -1,11 +1,8 @@
-from applications.serializers.submission_create_serializer import SubmissionCreateSerializer
-from applications.serializers.submission_serializer import SubmissionSerializer
-from applications.services.submission_service import InvalidStudentIdException, InvalidThesisIdException, StudentAlreadyAssignedException, SubmissionService, ThesisFullException, ThesisNotAvailableException
+from applications.services.submission_service import InvalidStudentIdException, SubmissionService
 from rest_framework.generics import DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from thesis.services.thesis_service import ThesisService
 from users.models import Role
 
 
