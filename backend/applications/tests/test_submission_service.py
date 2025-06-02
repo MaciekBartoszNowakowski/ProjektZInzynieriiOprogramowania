@@ -187,6 +187,28 @@ class TestSubmissionService(TestCase):
             self.submission_service.cancel_submission(student=self.student_1.user)
 
 
+    def test_cancel_submission_already_accepted(self):
+        Submission.objects.create(
+            student=self.student_1,
+            thesis=self.thesis_open,
+            status=SubmissionStatus.ACCEPTED
+        )
+
+        with self.assertRaises(SubmissionAlreadyResolvedException):
+            self.submission_service.cancel_submission(student=self.student_1.user)
+
+
+    def test_cancel_submission_already_rejected(self):
+        Submission.objects.create(
+            student=self.student_1,
+            thesis=self.thesis_open,
+            status=SubmissionStatus.REJECTED
+        )
+
+        with self.assertRaises(SubmissionAlreadyResolvedException):
+            self.submission_service.cancel_submission(student=self.student_1.user)
+
+
     def test_cancel_submission_success(self):
         Submission.objects.create(
             student=self.student_1,
