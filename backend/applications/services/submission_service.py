@@ -87,6 +87,9 @@ prowadzoną przez {thesis.supervisor_id.user.get_full_name()}"""
         except Submission.DoesNotExist:
             raise ValueError("Student nie jest zapisany na żadną pracę")
         
+        if submission.status != SubmissionStatus.OPEN and submission.status != SubmissionStatus.REJECTED:
+            raise SubmissionAlreadyResolvedException(f"Nie można anulować tego zgłoszenia, bo nie jest aktywne! Stan zgłoszenia: {submission.status}")
+        
         thesis = submission.thesis
         thesis_name = thesis.name
         thesis_id = thesis.id

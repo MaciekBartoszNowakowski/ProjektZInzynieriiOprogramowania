@@ -1,4 +1,4 @@
-from applications.services.submission_service import InvalidStudentIdException, SubmissionService
+from applications.services.submission_service import InvalidStudentIdException, SubmissionAlreadyResolvedException, SubmissionService
 from rest_framework.generics import DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -24,6 +24,8 @@ class CancelSubmissionView(DestroyAPIView):
         
         except InvalidStudentIdException as e:
             return Response({'error': str(e)}, status=status.HTTP_404_NOT_FOUND)
+        except SubmissionAlreadyResolvedException as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except ValueError as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
