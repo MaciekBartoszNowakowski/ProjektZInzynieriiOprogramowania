@@ -62,7 +62,7 @@ No request body required.
 
 **Errors**:
 - 403 Forbidden: when authenticated user is not a student
-- 400 Bad Request: when student has no active application or student's application has already been resolved (accepted or rejected)
+- 400 Bad Request: when student has no active application or student's application has already been accepted
 - 404 Not Found: when student not found in database
 
 ### GET /applications/status/
