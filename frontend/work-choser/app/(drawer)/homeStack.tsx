@@ -1,7 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeProfile from '../panes/homeProfile';
 import ThesisOwnerDescription from '../panes/thesisOwnerDescription';
-
+import ThesisDescription from '../panes/thesisDescription';
 const Stack = createNativeStackNavigator();
 
 export default function HomeStack() {
@@ -15,6 +15,11 @@ export default function HomeStack() {
             <Stack.Screen
                 name="ThesisOwnerDescription"
                 component={ThesisOwnerDescription}
+                options={{ title: 'Opis pracy dyplomowej' }}
+            />
+            <Stack.Screen
+                name="ThesisDescription"
+                component={ThesisDescription}
                 options={{ title: 'Opis pracy dyplomowej' }}
             />
         </Stack.Navigator>

@@ -4,6 +4,7 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { styles } from '@/constants/styles';
 import { getThesisById } from '@/api/getThesisById';
 import { StackParamList } from '@/types/navigationTypes';
+import { submitThesisApplication } from '@/api/submitThesisApplication';
 
 export default function ThesisDescription() {
     const route = useRoute<RouteProp<StackParamList, 'ThesisDescription'>>();
@@ -60,7 +61,14 @@ export default function ThesisDescription() {
 
                 <TouchableOpacity
                     style={styles.signInButton}
-                    onPress={() => console.log('Button pressed!')}
+                    onPress={async () => {
+                        const result = await submitThesisApplication(thesisId);
+                        if (result.success) {
+                            console.log('Zapisano pomyślnie do bazy!');
+                        } else {
+                            console.log('Nie udało się zapisać: ' + JSON.stringify(result.error));
+                        }
+                    }}
                 >
                     <Text style={styles.buttonText}>Zapisz się</Text>
                 </TouchableOpacity>

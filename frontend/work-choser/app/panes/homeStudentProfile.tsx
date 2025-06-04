@@ -6,6 +6,10 @@ import { getUserDataById } from '@/api/getUserDataById';
 import { getAllTags } from '@/api/getAllTags';
 import { updateTags } from '@/api/updateTags';
 import { changeDescription } from '@/api/changeDescription';
+import { getSubmissionStatus } from '@/api/getSubmissionStatus';
+import { useNavigation } from '@react-navigation/native';
+import { StackParamList } from '@/types/navigationTypes';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 type Props = {
     id: string;
@@ -19,6 +23,11 @@ export default function homeStudentProfile({ id }: Props) {
     const [lastName, setLastName] = useState('');
     const [department, setDepartment] = useState('');
     const [availableTags, setAvailableTags] = useState<{ id: number; name: string }[]>([]);
+    const [thesisTitle, setThesisTitle] = useState<string | null>(null);
+    const [thesisSupervisor, setThesisSupervisor] = useState<string | null>(null);
+    const [thesisId, setThesisId] = useState<number | null>(null);
+
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
 
     useFocusEffect(
         useCallback(() => {
@@ -48,9 +57,26 @@ export default function homeStudentProfile({ id }: Props) {
                     console.error('Error while fetching tags: ', error);
                 }
             };
+            const fetchThesisStatus = async () => {
+                try {
+                    const result = await getSubmissionStatus();
+                    if (result.success && result.data.has_submission) {
+                        setThesisTitle(result.data.submission.thesis.name);
+                        setThesisSupervisor(result.data.submission.thesis.supervisor_name);
+                        setThesisId(result.data.submission.thesis.id);
+                    } else {
+                        setThesisTitle(null);
+                        setThesisSupervisor(null);
+                        setThesisId(null);
+                    }
+                } catch (error) {
+                    console.error('Błąd przy pobieraniu statusu pracy:', error);
+                }
+            };
 
             fetchUser();
             fetchTags();
+            fetchThesisStatus();
 
             return () => {
                 isActive = false;
@@ -94,6 +120,21 @@ export default function homeStudentProfile({ id }: Props) {
             </View>
             <View style={styles.defaultBox}>
                 <Text style={styles.titleTextBox}>Praca dyplomowa</Text>
+                {thesisTitle ? (
+                    <TouchableOpacity
+                        onPress={() => {
+                            if (thesisId !== null) {
+                                navigation.navigate('ThesisDescription', { thesisId });
+                            }
+                        }}
+                        style={styles.tagItem}
+                    >
+                        <Text style={styles.textBox}>Tytuł: {thesisTitle}</Text>
+                        <Text style={styles.textBox}>Promotor: {thesisSupervisor}</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <Text style={styles.textBox}>Brak aktywnej aplikacji</Text>
+                )}
             </View>
 
             <View style={styles.defaultBox}>
