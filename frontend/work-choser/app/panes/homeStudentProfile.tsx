@@ -63,7 +63,7 @@ export default function homeStudentProfile({ id }: Props) {
             const fetchThesisStatus = async () => {
                 try {
                     const result = await getSubmissionStatus();
-
+                    console.log('Submission status result:', result);
                     if (result.success && result.data.has_submission) {
                         const submissionStatus = result.data.submission.status;
                         setApplicationStatus(submissionStatus);
