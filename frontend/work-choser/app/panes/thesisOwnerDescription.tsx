@@ -59,7 +59,7 @@ export default function ThesisOwnerDescription() {
                 <Text style={styles.titleTextBox}>Opis pracy</Text>
                 <Text style={styles.textBox}>{thesis.description}</Text>
             </View>
-            <PendingStudentList />
+            <PendingStudentList thesisId={thesisId} />
         </ScrollView>
     );
 }

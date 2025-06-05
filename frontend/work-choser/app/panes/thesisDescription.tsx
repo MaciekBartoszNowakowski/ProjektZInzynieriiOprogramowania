@@ -5,6 +5,7 @@ import { styles } from '@/constants/styles';
 import { getThesisById } from '@/api/getThesisById';
 import { StackParamList } from '@/types/navigationTypes';
 import { submitThesisApplication } from '@/api/submitThesisApplication';
+import { showMessage } from '@/utils/showMessage';
 
 export default function ThesisDescription() {
     const route = useRoute<RouteProp<StackParamList, 'ThesisDescription'>>();
@@ -63,10 +64,24 @@ export default function ThesisDescription() {
                     style={styles.signInButton}
                     onPress={async () => {
                         const result = await submitThesisApplication(thesisId);
+
                         if (result.success) {
-                            console.log('Zapisano pomyślnie do bazy!');
+                            showMessage('Sukces', 'Zgłoszono się pomyślnie do pracy!');
                         } else {
-                            console.log('Nie udało się zapisać: ' + JSON.stringify(result.error));
+                            const err = result.error;
+                            const msg =
+                                typeof err === 'string' ? err : err?.error || 'Nieznany błąd';
+
+                            if (msg.includes('już zapisany')) {
+                                showMessage('Nie można się zapisać', 'Masz już przypisaną pracę.');
+                            } else if (msg.includes('APP_OPEN')) {
+                                showMessage(
+                                    'Nie można się zapisać',
+                                    'Praca nie jest dostępna do zapisów.',
+                                );
+                            } else {
+                                showMessage('Błąd', `Nie udało się zapisać:\n${msg}`);
+                            }
                         }
                     }}
                 >

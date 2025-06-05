@@ -9,17 +9,14 @@ export const submitThesisApplication = async (thesisId: number) => {
             body: JSON.stringify({ thesis_id: thesisId }),
         });
 
-        const data = await response.json();
-
-        if (response.ok) {
-            console.log('success ', data);
-            return { success: true, data };
-        } else {
-            console.error('serwer error', data);
-            return { success: false, error: data };
+        if (!response.ok) {
+            const errorText = await response.text();
+            return { success: false, error: errorText };
         }
+
+        const data = await response.json();
+        return { success: true, data };
     } catch (error) {
-        console.error('Błąd sieci:', error);
-        return { success: false, error };
+        return { success: false, error: error instanceof Error ? error.message : String(error) };
     }
 };
