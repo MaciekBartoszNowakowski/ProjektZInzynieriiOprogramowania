@@ -10,6 +10,7 @@ import { getSubmissionStatus } from '@/api/getSubmissionStatus';
 import { useNavigation } from '@react-navigation/native';
 import { StackParamList } from '@/types/navigationTypes';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { cancelApplication } from '@/api/cancelApplication';
 
 type Props = {
     id: string;
@@ -26,6 +27,7 @@ export default function homeStudentProfile({ id }: Props) {
     const [thesisTitle, setThesisTitle] = useState<string | null>(null);
     const [thesisSupervisor, setThesisSupervisor] = useState<string | null>(null);
     const [thesisId, setThesisId] = useState<number | null>(null);
+    const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
 
     const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
 
@@ -57,13 +59,29 @@ export default function homeStudentProfile({ id }: Props) {
                     console.error('Error while fetching tags: ', error);
                 }
             };
+
             const fetchThesisStatus = async () => {
                 try {
                     const result = await getSubmissionStatus();
+
                     if (result.success && result.data.has_submission) {
-                        setThesisTitle(result.data.submission.thesis.name);
-                        setThesisSupervisor(result.data.submission.thesis.supervisor_name);
-                        setThesisId(result.data.submission.thesis.id);
+                        const submissionStatus = result.data.submission.status;
+                        setApplicationStatus(submissionStatus);
+                        if (submissionStatus === 'odrzucone') {
+                            try {
+                                await cancelApplication();
+                                setThesisTitle(null);
+                                setThesisSupervisor(null);
+                                setThesisId(null);
+                                console.log('Odrzucona aplikacja została automatycznie usunięta.');
+                            } catch (error) {
+                                console.error('Błąd przy automatycznym usuwaniu aplikacji:', error);
+                            }
+                        } else {
+                            setThesisTitle(result.data.submission.thesis.name);
+                            setThesisSupervisor(result.data.submission.thesis.supervisor_name);
+                            setThesisId(result.data.submission.thesis.id);
+                        }
                     } else {
                         setThesisTitle(null);
                         setThesisSupervisor(null);
@@ -131,6 +149,9 @@ export default function homeStudentProfile({ id }: Props) {
                     >
                         <Text style={styles.textBox}>Tytuł: {thesisTitle}</Text>
                         <Text style={styles.textBox}>Promotor: {thesisSupervisor}</Text>
+                        {applicationStatus && (
+                            <Text style={styles.textBox}>Status: {applicationStatus}</Text>
+                        )}
                     </TouchableOpacity>
                 ) : (
                     <Text style={styles.textBox}>Brak aktywnej aplikacji</Text>
