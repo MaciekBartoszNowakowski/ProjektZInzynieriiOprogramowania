@@ -6,9 +6,18 @@ import { Submission } from '@/types/submissionType';
 import { acceptSubmission } from '@/api/acceptSubmission';
 import { rejectSubmission } from '@/api/rejectSubmission';
 import { getThesisById } from '@/api/getThesisById';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackParamList } from '@/types/navigationTypes';
+
+// type StackParamList = {
+//     StudentProfile: { id: number };
+// };
+
 export default function PendingStudentList({ thesisId }: { thesisId: number }) {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [maxStudents, setMaxStudents] = useState<number>(Infinity);
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
 
     useEffect(() => {
         const fetchAll = async () => {
@@ -75,9 +84,18 @@ export default function PendingStudentList({ thesisId }: { thesisId: number }) {
                 keyExtractor={(item) => item.student.index_number}
                 renderItem={({ item }) => (
                     <View style={styles.singleElementFormStudentList}>
-                        <Text style={styles.textBox}>{item.student.full_name}</Text>
+                        {/* <Text style={styles.textBox}>{item.student.full_name}</Text>
+                        <Text style={styles.textBox}>Status: {item.status}</Text> */}
+                        <TouchableOpacity
+                            onPress={() =>
+                                navigation.navigate('StudentProfile', {
+                                    id: Number(item.student),
+                                })
+                            }
+                        >
+                            <Text style={styles.textBox}>{item.student.full_name}</Text>
+                        </TouchableOpacity>
                         <Text style={styles.textBox}>Status: {item.status}</Text>
-
                         <View style={styles.flexViewStyle}>
                             <TouchableOpacity
                                 style={styles.signInButton}

@@ -30,7 +30,7 @@ export default function homeStudentProfile({ id }: Props) {
     const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
 
     const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
-
+    console.log('ID: ', id);
     useFocusEffect(
         useCallback(() => {
             let isActive = true;
@@ -133,9 +133,7 @@ export default function homeStudentProfile({ id }: Props) {
                 <Text style={styles.titleTextBox}>Wydział</Text>
                 <Text style={styles.textBox}>{department}</Text>
             </View>
-            <View style={styles.defaultBox}>
-                <Text style={styles.titleTextBox}>Oceny</Text>
-            </View>
+
             <View style={styles.defaultBox}>
                 <Text style={styles.titleTextBox}>Praca dyplomowa</Text>
                 {thesisTitle ? (

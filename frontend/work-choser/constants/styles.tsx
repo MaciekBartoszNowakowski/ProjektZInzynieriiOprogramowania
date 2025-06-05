@@ -115,7 +115,6 @@ export const styles = StyleSheet.create({
     },
     slotValue: {
         fontWeight: 'bold',
-        color: 'red',
     },
     supervisorBox: {
         width: '100%',
@@ -123,7 +122,7 @@ export const styles = StyleSheet.create({
         backgroundColor: brightGrey,
         borderBottomWidth: 1,
         borderBottomColor: mediumGrey,
-        // alignSelf: 'center',
+        alignSelf: 'center',
     },
     pageTitile: {
         fontSize: 48,

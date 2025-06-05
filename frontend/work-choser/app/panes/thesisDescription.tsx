@@ -50,9 +50,7 @@ export default function ThesisDescription() {
 
                 <Text style={styles.titleTextBox}>Dostępność</Text>
                 <Text style={styles.textBox}>
-                    Dostępne miejsca: <Text style={styles.slotValue}>x</Text> Zajęte miejsca:{' '}
-                    <Text style={styles.slotValue}>y</Text> Oczekujące zgłoszenia:{' '}
-                    <Text style={styles.slotValue}>z</Text>
+                    Ilość miejsc: <Text style={styles.slotValue}>{thesis.max_students}</Text>
                 </Text>
             </View>
 

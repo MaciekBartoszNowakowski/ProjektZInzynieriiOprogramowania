@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { styles } from '@/constants/styles';
 import { getThesisById } from '@/api/getThesisById';
+import { getThesisSubmissions } from '@/api/getThesisSubmissions';
 import { StackParamList } from '@/types/navigationTypes';
 import PendingStudentList from '@/components/custom_components/pendingStudentList';
 
@@ -11,20 +12,22 @@ export default function ThesisOwnerDescription() {
     const { thesisId } = route.params;
 
     const [thesis, setThesis] = useState<any>(null);
+    const [submissions, setSubmissions] = useState<any[]>([]);
+
+    const refreshData = async () => {
+        try {
+            const thesisData = await getThesisById(thesisId);
+            setThesis(thesisData);
+
+            const submissionData = await getThesisSubmissions(thesisId);
+            setSubmissions(submissionData);
+        } catch (error) {
+            console.error('Failed to fetch data:', error);
+        }
+    };
 
     useEffect(() => {
-        const fetchThesis = async () => {
-            try {
-                console.log('Fetching thesis with ID:', thesisId);
-                const data = await getThesisById(thesisId);
-                console.log('Fetched thesis:', data);
-                setThesis(data);
-            } catch (error) {
-                console.error('Failed to fetch thesis:', error);
-            }
-        };
-
-        fetchThesis();
+        refreshData();
     }, [thesisId]);
 
     if (!thesis) {
@@ -37,6 +40,9 @@ export default function ThesisOwnerDescription() {
 
     const supervisor = thesis.supervisor_id.user;
     const fullName = `${supervisor.academic_title} ${supervisor.first_name} ${supervisor.last_name}`;
+    const acceptedCount = submissions.filter((s) => s.status === 'zaakceptowane').length;
+    const pendingCount = submissions.filter((s) => s.status === 'aktywne').length;
+    const availableCount = thesis.max_students - acceptedCount;
 
     return (
         <ScrollView style={styles.container}>
@@ -49,9 +55,9 @@ export default function ThesisOwnerDescription() {
 
                 <Text style={styles.titleTextBox}>Dostępność</Text>
                 <Text style={styles.textBox}>
-                    Dostępne miejsca: <Text style={styles.slotValue}>x</Text> Zajęte miejsca:{' '}
-                    <Text style={styles.slotValue}>y</Text> Oczekujące zgłodzenia:{' '}
-                    <Text style={styles.slotValue}>z</Text>
+                    Dostępne miejsca: <Text style={styles.slotValue}>{availableCount} </Text>
+                    Zajęte miejsca: <Text style={styles.slotValue}>{acceptedCount} </Text>
+                    Oczekujące zgłoszenia: <Text style={styles.slotValue}>{pendingCount}</Text>
                 </Text>
             </View>
 
