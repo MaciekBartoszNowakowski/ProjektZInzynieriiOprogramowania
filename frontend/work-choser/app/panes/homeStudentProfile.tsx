@@ -28,6 +28,7 @@ export default function homeStudentProfile({ id }: Props) {
     const [thesisSupervisor, setThesisSupervisor] = useState<string | null>(null);
     const [thesisId, setThesisId] = useState<number | null>(null);
     const [applicationStatus, setApplicationStatus] = useState<string | null>(null);
+    const [thesisDescription, setThesisDescription] = useState<string | null>(null);
 
     const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
     console.log('ID: ', id);
@@ -81,6 +82,7 @@ export default function homeStudentProfile({ id }: Props) {
                             setThesisTitle(result.data.submission.thesis.name);
                             setThesisSupervisor(result.data.submission.thesis.supervisor_name);
                             setThesisId(result.data.submission.thesis.id);
+                            setThesisDescription(result.data.submission.thesis.description);
                         }
                     } else {
                         setThesisTitle(null);
@@ -140,7 +142,13 @@ export default function homeStudentProfile({ id }: Props) {
                     <TouchableOpacity
                         onPress={() => {
                             if (thesisId !== null) {
-                                navigation.navigate('ThesisDescription', { thesisId });
+                                navigation.navigate('applicatedThesisDescription', {
+                                    thesisId,
+                                    name: thesisTitle || 'brak danych',
+                                    supervisor: thesisSupervisor || 'brak danych',
+                                    status: applicationStatus || 'brak danych',
+                                    description: thesisDescription || 'brak danych',
+                                });
                             }
                         }}
                         style={styles.tagItem}

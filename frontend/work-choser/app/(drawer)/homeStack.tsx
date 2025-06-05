@@ -3,6 +3,7 @@ import HomeProfile from '../panes/homeProfile';
 import ThesisOwnerDescription from '../panes/thesisOwnerDescription';
 import ThesisDescription from '../panes/thesisDescription';
 import StudentsProfile from '../panes/studentsProfile';
+import ApplicatedThesisDescription from '../panes/applicatedThesisDescription';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +28,11 @@ export default function HomeStack() {
             <Stack.Screen name="StudentProfile" options={{ title: 'Profil studenta' }}>
                 {({ route }) => <StudentsProfile id={Number(route.params.id)} />}
             </Stack.Screen>
+            <Stack.Screen
+                name="applicatedThesisDescription"
+                component={ApplicatedThesisDescription}
+                options={{ title: 'Moja praca dyplomowa' }}
+            />
         </Stack.Navigator>
     );
 }
