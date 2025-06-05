@@ -4,7 +4,7 @@ import ThesisOwnerDescription from '../panes/thesisOwnerDescription';
 import ThesisDescription from '../panes/thesisDescription';
 import StudentsProfile from '../panes/studentsProfile';
 import ApplicatedThesisDescription from '../panes/applicatedThesisDescription';
-
+import AddingThesis from '../panes/addingThesis';
 const Stack = createNativeStackNavigator();
 
 export default function HomeStack() {
@@ -32,6 +32,11 @@ export default function HomeStack() {
                 name="applicatedThesisDescription"
                 component={ApplicatedThesisDescription}
                 options={{ title: 'Moja praca dyplomowa' }}
+            />
+            <Stack.Screen
+                name="AddingThesis"
+                component={AddingThesis}
+                options={{ title: 'Nowa praca dyplomowa' }}
             />
         </Stack.Navigator>
     );

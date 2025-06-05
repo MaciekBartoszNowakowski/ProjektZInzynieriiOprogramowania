@@ -149,6 +149,15 @@ export default function HomeSupervisorProfile({ id }: Props) {
                 />
             </View>
 
+            <View style={styles.defaultBox}>
+                <TouchableOpacity
+                    style={styles.signInButton}
+                    onPress={() => navigation.navigate('AddingThesis')}
+                >
+                    <Text style={styles.buttonText}>Dodaj pracę dyplomową</Text>
+                </TouchableOpacity>
+            </View>
+
             <View style={styles.container}>
                 <Text style={styles.pageTitile}>Lista wszystkich prac promotora</Text>
                 {thesises.length > 0 ? (
