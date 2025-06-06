@@ -9,6 +9,8 @@ import { changeDescription } from '@/api/changeDescription';
 import { getAllTheses } from '@/api/getAllTheses';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamList } from '@/types/navigationTypes';
+import { getThesisSubmissions } from '@/api/getThesisSubmissions';
+import { getMyTheses } from '@/api/getMyTheses';
 
 type Props = {
     id: string;
@@ -26,7 +28,8 @@ export default function HomeSupervisorProfile({ id }: Props) {
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [isTagsOpen, setIsTagsOpen] = useState(false);
     const [availableTags, setAvailableTags] = useState<{ id: number; name: string }[]>([]);
-    const [thesises, setThesises] = useState<any[]>([]);
+    const [thesises, setThesises] = useState<{ [status: string]: any[] }>({});
+    const [pendingCounts, setPendingCounts] = useState<{ [thesisId: number]: number }>({});
 
     useFocusEffect(
         useCallback(() => {
@@ -35,12 +38,56 @@ export default function HomeSupervisorProfile({ id }: Props) {
             const fetchUser = async () => {
                 try {
                     const data = await getUserDataById(id);
-                    const thesesData = await getAllTheses();
+                    const [allTheses, myTheses] = await Promise.all([
+                        getAllTheses(),
+                        getMyTheses(),
+                    ]);
 
-                    const filteredTheses = thesesData.filter(
-                        (thesis: any) => String(thesis.supervisor_id) === String(id),
+                    const active = allTheses.filter(
+                        (t: any) => String(t.supervisor_id) === String(id),
                     );
-                    setThesises(filteredTheses);
+                    active.forEach((t: { status: string }) => {
+                        t.status = 'aktywne';
+                    });
+
+                    const other = myTheses.filter(
+                        (t: any) => t.status === 'w realizacji' || t.status === 'zakończona',
+                    );
+
+                    const counts: { [thesisId: number]: number } = {};
+                    await Promise.all(
+                        active.map(async (thesis: { url: string; id: any }) => {
+                            try {
+                                const idFromUrl = parseInt(
+                                    thesis.url?.split('/').filter(Boolean).pop() ?? '',
+                                    10,
+                                );
+                                if (!isNaN(idFromUrl)) {
+                                    const submissions = await getThesisSubmissions(idFromUrl);
+                                    counts[idFromUrl] = submissions.filter(
+                                        (s: any) => s.status === 'aktywne',
+                                    ).length;
+                                }
+                            } catch (err) {
+                                console.warn(
+                                    `Błąd pobierania zgłoszeń dla pracy ID ${thesis.id}:`,
+                                    err,
+                                );
+                            }
+                        }),
+                    );
+                    setPendingCounts(counts);
+
+                    const combined = [...active, ...other];
+
+                    const grouped: { [status: string]: any[] } = {};
+                    for (const thesis of combined) {
+                        const status = thesis.status || 'nieznany';
+                        if (!grouped[status]) grouped[status] = [];
+                        grouped[status].push(thesis);
+                    }
+
+                    setThesises(grouped);
 
                     if (isActive && data) {
                         setFirstName(data.first_name);
@@ -60,7 +107,6 @@ export default function HomeSupervisorProfile({ id }: Props) {
                 try {
                     const data = await getAllTags();
                     setAvailableTags(data);
-                    console.log('Tags: ', data);
                 } catch (error) {
                     console.error('Error while fetching tags: ', error);
                 }
@@ -94,6 +140,8 @@ export default function HomeSupervisorProfile({ id }: Props) {
             updateTags([id.toString()], []);
         }
     };
+
+    const statusOrder = ['aktywne', 'w realizacji', 'zakończona'];
 
     return (
         <ScrollView style={styles.container}>
@@ -158,31 +206,40 @@ export default function HomeSupervisorProfile({ id }: Props) {
                 </TouchableOpacity>
             </View>
 
-            <View style={styles.container}>
-                <Text style={styles.pageTitile}>Lista wszystkich prac promotora</Text>
-                {thesises.length > 0 ? (
-                    thesises.map((thesis, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={styles.supervisorBox}
-                            onPress={() => {
-                                const thesisId = parseInt(
-                                    thesis.url.split('/').filter(Boolean).pop() ?? '',
-                                    10,
-                                );
-                                navigation.navigate('ThesisOwnerDescription', { thesisId });
-                            }}
-                        >
-                            <Text style={styles.titleTextBox}>{thesis.name}</Text>
-                            <Text style={styles.textBox}>{thesis.description}</Text>
-                        </TouchableOpacity>
-                    ))
-                ) : (
-                    <Text style={styles.textBox}>
-                        Prowadzący aktualnie nie udostępnia prac dyplomowych
-                    </Text>
-                )}
-            </View>
+            <Text style={styles.pageTitile}>Lista prac promotora według statusu</Text>
+
+            {Object.entries(thesises)
+                .sort(([a], [b]) => statusOrder.indexOf(a) - statusOrder.indexOf(b))
+                .map(([status, group]) => (
+                    <View key={status}>
+                        <Text style={styles.subtitle}>{status.toUpperCase()}</Text>
+                        {group.map((thesis: any) => {
+                            const thesisId = parseInt(
+                                thesis.url?.split('/').filter(Boolean).pop() ?? '',
+                                10,
+                            );
+                            const count = pendingCounts[thesisId] ?? 0;
+                            const dynamicColor = count > 0 ? styles.redText : styles.normalText;
+
+                            return (
+                                <TouchableOpacity
+                                    key={thesisId}
+                                    style={styles.supervisorBox}
+                                    onPress={() =>
+                                        navigation.navigate('ThesisOwnerDescription', { thesisId })
+                                    }
+                                >
+                                    <Text style={styles.titleTextBox}>{thesis.name}</Text>
+                                    <Text style={[styles.textBox, dynamicColor]}>
+                                        {count > 0
+                                            ? `${count} oczekujących zgłoszeń`
+                                            : 'Brak oczekujących zgłoszeń'}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+                ))}
 
             <View style={styles.freeSpace} />
         </ScrollView>

@@ -117,12 +117,13 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     supervisorBox: {
-        width: '100%',
-        // height: 100,
+        width: '80%',
         backgroundColor: brightGrey,
         borderBottomWidth: 1,
         borderBottomColor: mediumGrey,
         alignSelf: 'center',
+        padding: 10,
+        borderRadius: 10,
     },
     pageTitile: {
         fontSize: 48,
@@ -274,17 +275,23 @@ export const styles = StyleSheet.create({
         fontWeight: 'bold' as const,
         marginLeft: 10,
         fontSize: 24,
+        lineHeight: 30,
+        paddingVertical: 4,
     },
     inactiveLabelStyle: {
         color: listGrey,
         fontWeight: 'normal' as const,
         marginLeft: 10,
         fontSize: 24,
+        lineHeight: 30,
+        paddingVertical: 4,
     },
     activeItemStyle: {
         backgroundColor: selectedItemGreen,
         borderTopWidth: 1,
         borderColor: black,
+        flexShrink: 1,
+        paddingRight: 16,
     },
     inactiveItemStyle: {
         backgroundColor: 'transparent',
@@ -331,5 +338,16 @@ export const styles = StyleSheet.create({
     flexViewStyle: {
         flexDirection: 'row',
         gap: 8,
+    },
+    subtitle: {
+        fontSize: 32,
+        textAlign: 'center',
+        fontFamily: 'SpaceMono',
+    },
+    redText: {
+        color: 'red',
+    },
+    normalText: {
+        color: black,
     },
 });
