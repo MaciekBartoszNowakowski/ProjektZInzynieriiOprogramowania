@@ -133,7 +133,8 @@ No request body required.
       "id": "number",
       "student": {
         "index_number": "string",
-        "full_name": "string"
+        "full_name": "string",
+        "url": "string"
       },
       "thesis": {
         "id": "number",
