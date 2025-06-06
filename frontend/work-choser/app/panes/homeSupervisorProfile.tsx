@@ -11,6 +11,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamList } from '@/types/navigationTypes';
 import { getThesisSubmissions } from '@/api/getThesisSubmissions';
 import { getMyTheses } from '@/api/getMyTheses';
+import { deleteThesis } from '@/api/deleteThesis';
+import { getUserRole } from '@/api/getUserRole';
 
 type Props = {
     id: string;
@@ -30,6 +32,18 @@ export default function HomeSupervisorProfile({ id }: Props) {
     const [availableTags, setAvailableTags] = useState<{ id: number; name: string }[]>([]);
     const [thesises, setThesises] = useState<{ [status: string]: any[] }>({});
     const [pendingCounts, setPendingCounts] = useState<{ [thesisId: number]: number }>({});
+    const [limits, setLimits] = useState({
+        bachelor: 0,
+        engineering: 0,
+        master: 0,
+        phd: 0,
+    });
+    const [workload, setWorkload] = useState({
+        bachelor: 0,
+        engineering: 0,
+        master: 0,
+        phd: 0,
+    });
 
     useFocusEffect(
         useCallback(() => {
@@ -38,6 +52,14 @@ export default function HomeSupervisorProfile({ id }: Props) {
             const fetchUser = async () => {
                 try {
                     const data = await getUserDataById(id);
+                    const userRoleData = await getUserRole();
+
+                    setLimits({
+                        bachelor: userRoleData.bachelor_limit,
+                        engineering: userRoleData.engineering_limit,
+                        master: userRoleData.master_limit,
+                        phd: userRoleData.phd_limit,
+                    });
                     const [allTheses, myTheses] = await Promise.all([
                         getAllTheses(),
                         getMyTheses(),
@@ -53,6 +75,36 @@ export default function HomeSupervisorProfile({ id }: Props) {
                     const other = myTheses.filter(
                         (t: any) => t.status === 'w realizacji' || t.status === 'zakończona',
                     );
+                    const relevant = [...active, ...other];
+                    const activeAndInProgress = relevant.filter(
+                        (t) => t.status === 'aktywne' || t.status === 'w realizacji',
+                    );
+
+                    const workloadCount = {
+                        bachelor: 0,
+                        engineering: 0,
+                        master: 0,
+                        phd: 0,
+                    };
+
+                    activeAndInProgress.forEach((thesis) => {
+                        switch (thesis.thesis_type?.toLowerCase()) {
+                            case 'licencjacka':
+                                workloadCount.bachelor++;
+                                break;
+                            case 'inżynierska':
+                                workloadCount.engineering++;
+                                break;
+                            case 'magisterska':
+                                workloadCount.master++;
+                                break;
+                            case 'doktorska':
+                                workloadCount.phd++;
+                                break;
+                        }
+                    });
+
+                    setWorkload(workloadCount);
 
                     const counts: { [thesisId: number]: number } = {};
                     await Promise.all(
@@ -140,6 +192,20 @@ export default function HomeSupervisorProfile({ id }: Props) {
             updateTags([id.toString()], []);
         }
     };
+    const handleDeleteThesis = async (thesisId: number) => {
+        try {
+            await deleteThesis(thesisId);
+            setThesises((prev) => {
+                const updated = { ...prev };
+                Object.keys(updated).forEach((status) => {
+                    updated[status] = updated[status].filter((t) => t.id !== thesisId);
+                });
+                return updated;
+            });
+        } catch (error) {
+            console.error('Nie udało się usunąć pracy:', error);
+        }
+    };
 
     const statusOrder = ['aktywne', 'w realizacji', 'zakończona'];
 
@@ -196,10 +262,23 @@ export default function HomeSupervisorProfile({ id }: Props) {
                     multiline
                 />
             </View>
-
             <View style={styles.defaultBox}>
+                <View style={styles.marginTop10}>
+                    <Text style={styles.textBox}>
+                        Prace Licencjackie: {workload.bachelor} / {limits.bachelor}
+                    </Text>
+                    <Text style={styles.textBox}>
+                        Prace Inżynierskie: {workload.engineering} / {limits.engineering}
+                    </Text>
+                    <Text style={styles.textBox}>
+                        Prace Magisterskie: {workload.master} / {limits.master}
+                    </Text>
+                    <Text style={styles.textBox}>
+                        Prace Doktorskie: {workload.phd} / {limits.phd}
+                    </Text>
+                </View>
                 <TouchableOpacity
-                    style={styles.signInButton}
+                    style={styles.addThesesButton}
                     onPress={() => navigation.navigate('AddingThesis')}
                 >
                     <Text style={styles.buttonText}>Dodaj pracę dyplomową</Text>
@@ -214,6 +293,8 @@ export default function HomeSupervisorProfile({ id }: Props) {
                     <View key={status}>
                         <Text style={styles.subtitle}>{status.toUpperCase()}</Text>
                         {group.map((thesis: any) => {
+                            console.log('Thesis:', thesis);
+
                             const thesisId = parseInt(
                                 thesis.url?.split('/').filter(Boolean).pop() ?? '',
                                 10,
@@ -230,11 +311,26 @@ export default function HomeSupervisorProfile({ id }: Props) {
                                     }
                                 >
                                     <Text style={styles.titleTextBox}>{thesis.name}</Text>
-                                    <Text style={[styles.textBox, dynamicColor]}>
-                                        {count > 0
-                                            ? `${count} oczekujących zgłoszeń`
-                                            : 'Brak oczekujących zgłoszeń'}
+                                    <Text style={styles.textBox}>
+                                        Typ pracy: {thesis.thesis_type}
                                     </Text>
+
+                                    {status === 'aktywne' && (
+                                        <>
+                                            <Text style={[styles.textBox, dynamicColor]}>
+                                                {count > 0
+                                                    ? `${count} oczekujących zgłoszeń`
+                                                    : 'Brak oczekujących zgłoszeń'}
+                                            </Text>
+
+                                            <TouchableOpacity
+                                                style={styles.deleteButton}
+                                                onPress={() => handleDeleteThesis(thesisId)}
+                                            >
+                                                <Text style={styles.buttonText}>Usuń pracę</Text>
+                                            </TouchableOpacity>
+                                        </>
+                                    )}
                                 </TouchableOpacity>
                             );
                         })}

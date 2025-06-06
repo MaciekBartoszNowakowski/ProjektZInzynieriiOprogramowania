@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { styles } from '@/constants/styles';
 import { showMessage } from '@/utils/showMessage';
 import { useNavigation } from '@react-navigation/native';
 import { addThesis } from '@/api/addThesis';
+import { getUserRole } from '@/api/getUserRole';
+import { getMyTheses } from '@/api/getMyTheses';
 
 export default function AddingThesis() {
     const [name, setName] = useState('');
@@ -26,7 +28,68 @@ export default function AddingThesis() {
 
     const navigation = useNavigation();
 
+    const [limits, setLimits] = useState({ bachelor: 0, engineering: 0, master: 0, phd: 0 });
+    const [workload, setWorkload] = useState({ bachelor: 0, engineering: 0, master: 0, phd: 0 });
+
+    useEffect(() => {
+        const fetchLimitsAndWorkload = async () => {
+            try {
+                const user = await getUserRole();
+                if (user) {
+                    setLimits({
+                        bachelor: user.bachelor_limit,
+                        engineering: user.engineering_limit,
+                        master: user.master_limit,
+                        phd: user.phd_limit,
+                    });
+                }
+
+                const theses = await getMyTheses();
+                console.log('Pobrane prace:', theses);
+                const workloadCount = { bachelor: 0, engineering: 0, master: 0, phd: 0 };
+                theses
+                    .filter((t: any) => t.status === 'otwarta' || t.status === 'w realizacji')
+                    .forEach((t: any) => {
+                        console.log('Przetwarzanie pracy:', t);
+                        switch (t.thesis_type?.toLowerCase()) {
+                            case 'licencjacka':
+                                workloadCount.bachelor++;
+                                break;
+                            case 'inżynierska':
+                                workloadCount.engineering++;
+                                break;
+                            case 'magisterska':
+                                workloadCount.master++;
+                                break;
+                            case 'doktorska':
+                                workloadCount.phd++;
+                                break;
+                        }
+                    });
+
+                setWorkload(workloadCount);
+            } catch (err) {
+                console.error('Błąd pobierania limitów i obciążenia:', err);
+            }
+        };
+
+        fetchLimitsAndWorkload();
+    }, []);
+
     const handleSubmit = async () => {
+        const limitReached =
+            (type === 'licencjacka' && workload.bachelor >= limits.bachelor) ||
+            (type === 'inżynierska' && workload.engineering >= limits.engineering) ||
+            (type === 'magisterska' && workload.master >= limits.master) ||
+            (type === 'doktorska' && workload.phd >= limits.phd);
+
+        if (limitReached) {
+            showMessage(
+                'Limit osiągnięty',
+                `Nie możesz dodać więcej prac typu ${typeLabelMap[type]}.`,
+            );
+            return;
+        }
         const payload = {
             name,
             description,
@@ -47,6 +110,22 @@ export default function AddingThesis() {
 
     return (
         <ScrollView style={styles.container}>
+            <View style={styles.defaultBox}>
+                <Text style={styles.titleTextBox}>Limity prac</Text>
+                <Text style={styles.textBox}>
+                    Licencjackie: {workload.bachelor} / {limits.bachelor}
+                </Text>
+                <Text style={styles.textBox}>
+                    Inżynierskie: {workload.engineering} / {limits.engineering}
+                </Text>
+                <Text style={styles.textBox}>
+                    Magisterskie: {workload.master} / {limits.master}
+                </Text>
+                <Text style={styles.textBox}>
+                    Doktorskie: {workload.phd} / {limits.phd}
+                </Text>
+            </View>
+
             <View style={styles.inputBox}>
                 <Text style={styles.titleTextBox}>Tytuł pracy</Text>
                 <TextInput value={name} onChangeText={setName} style={styles.textBox} />
@@ -153,7 +232,7 @@ export default function AddingThesis() {
                 )}
             </View>
 
-            <TouchableOpacity onPress={handleSubmit} style={styles.signInButton}>
+            <TouchableOpacity onPress={handleSubmit} style={styles.addThesesButton}>
                 <Text style={styles.buttonText}>Dodaj pracę</Text>
             </TouchableOpacity>
         </ScrollView>

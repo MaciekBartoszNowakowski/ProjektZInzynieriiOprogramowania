@@ -108,6 +108,22 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderRadius: 8,
     },
+    addThesesButton: {
+        backgroundColor: greenColor,
+        alignSelf: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+    },
+    deleteButton: {
+        backgroundColor: 'red',
+        alignSelf: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        marginTop: 10,
+    },
+
     buttonText: {
         color: 'white',
         fontSize: 24,
@@ -181,6 +197,9 @@ export const styles = StyleSheet.create({
     },
     tagItemSelected: {
         backgroundColor: '#aed581',
+    },
+    marginTop10: {
+        marginTop: 10,
     },
     applyFiltersButton: {
         backgroundColor: greenColor,

@@ -10,10 +10,6 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamList } from '@/types/navigationTypes';
 
-// type StackParamList = {
-//     StudentProfile: { id: number };
-// };
-
 export default function PendingStudentList({ thesisId }: { thesisId: number }) {
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [maxStudents, setMaxStudents] = useState<number>(Infinity);
