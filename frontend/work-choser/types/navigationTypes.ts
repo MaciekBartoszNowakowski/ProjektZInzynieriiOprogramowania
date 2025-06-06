@@ -11,4 +11,5 @@ export type StackParamList = {
         description: string;
     };
     AddingThesis: undefined;
+    noActiveThesis: { thesis: any };
 };

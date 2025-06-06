@@ -13,7 +13,6 @@ import { getThesisSubmissions } from '@/api/getThesisSubmissions';
 import { getMyTheses } from '@/api/getMyTheses';
 import { deleteThesis } from '@/api/deleteThesis';
 import { getUserRole } from '@/api/getUserRole';
-
 type Props = {
     id: string;
 };
@@ -293,8 +292,6 @@ export default function HomeSupervisorProfile({ id }: Props) {
                     <View key={status}>
                         <Text style={styles.subtitle}>{status.toUpperCase()}</Text>
                         {group.map((thesis: any) => {
-                            console.log('Thesis:', thesis);
-
                             const thesisId = parseInt(
                                 thesis.url?.split('/').filter(Boolean).pop() ?? '',
                                 10,
@@ -306,9 +303,18 @@ export default function HomeSupervisorProfile({ id }: Props) {
                                 <TouchableOpacity
                                     key={thesisId}
                                     style={styles.supervisorBox}
-                                    onPress={() =>
-                                        navigation.navigate('ThesisOwnerDescription', { thesisId })
-                                    }
+                                    // onPress={() =>
+                                    //     navigation.navigate('ThesisOwnerDescription', { thesisId })
+                                    // }
+                                    onPress={() => {
+                                        if (status === 'w realizacji' || status === 'zakończona') {
+                                            navigation.navigate('noActiveThesis', { thesis });
+                                        } else {
+                                            navigation.navigate('ThesisOwnerDescription', {
+                                                thesisId,
+                                            });
+                                        }
+                                    }}
                                 >
                                     <Text style={styles.titleTextBox}>{thesis.name}</Text>
                                     <Text style={styles.textBox}>

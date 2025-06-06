@@ -83,7 +83,7 @@ export const styles = StyleSheet.create({
     },
     thesisTitleBox: {
         width: '80%',
-        height: 210,
+        // height: 210,
         backgroundColor: brightGrey,
         borderRadius: 10,
         padding: 10,

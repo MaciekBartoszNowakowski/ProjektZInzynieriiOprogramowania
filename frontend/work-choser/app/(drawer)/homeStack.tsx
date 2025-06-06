@@ -5,6 +5,7 @@ import ThesisDescription from '../panes/thesisDescription';
 import StudentsProfile from '../panes/studentsProfile';
 import ApplicatedThesisDescription from '../panes/applicatedThesisDescription';
 import AddingThesis from '../panes/addingThesis';
+import NoActiveTheses from '../panes/noActiveThesis';
 const Stack = createNativeStackNavigator();
 
 export default function HomeStack() {
@@ -38,6 +39,7 @@ export default function HomeStack() {
                 component={AddingThesis}
                 options={{ title: 'Nowa praca dyplomowa' }}
             />
+            <Stack.Screen name="noActiveThesis" component={NoActiveTheses} />
         </Stack.Navigator>
     );
 }
