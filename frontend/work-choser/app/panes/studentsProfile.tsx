@@ -186,7 +186,7 @@ export default function StudentsProfile({ id }: Props) {
 
             <View style={styles.inputBox}>
                 <Text style={styles.titleTextBox}>Opis</Text>
-                <Text style={styles.textBox}>{description}</Text>
+                <Text style={styles.textBoxNotCentered}>{description}</Text>
             </View>
         </ScrollView>
     );

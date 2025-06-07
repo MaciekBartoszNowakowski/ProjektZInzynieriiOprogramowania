@@ -31,6 +31,17 @@ export default function PendingStudentList({ thesisId }: { thesisId: number }) {
         fetchAll();
     }, [thesisId]);
 
+    useEffect(() => {
+        console.log(
+            'Submissions z URL:',
+            submissions.map((s) => ({
+                id: s.id,
+                fullName: s.student?.full_name,
+                url: s.student?.url,
+            })),
+        );
+    }, [submissions]);
+
     const handleAccept = async (id: number) => {
         try {
             await acceptSubmission(id);
@@ -41,9 +52,7 @@ export default function PendingStudentList({ thesisId }: { thesisId: number }) {
                 'Aktualne statusy:',
                 updated.map((s) => ({ id: s.id, status: s.status })),
             );
-
             setSubmissions(updated);
-
             const acceptedCount = updated.filter((s) => s.status === 'zaakceptowane').length;
             if (acceptedCount >= maxStudents) {
                 const toReject = updated.filter((s) => s.status === 'aktywne');
@@ -71,6 +80,7 @@ export default function PendingStudentList({ thesisId }: { thesisId: number }) {
             console.error('Reject error:', e);
         }
     };
+    console.log('Submissions:', submissions);
     return (
         <View style={styles.mainStudentListBox}>
             <Text style={styles.titleStudentListText}>Zgłoszeni studenci</Text>
@@ -80,8 +90,6 @@ export default function PendingStudentList({ thesisId }: { thesisId: number }) {
                 keyExtractor={(item) => item.student.index_number}
                 renderItem={({ item }) => (
                     <View style={styles.singleElementFormStudentList}>
-                        {/* <Text style={styles.textBox}>{item.student.full_name}</Text>
-                        <Text style={styles.textBox}>Status: {item.status}</Text> */}
                         <TouchableOpacity
                             onPress={() =>
                                 navigation.navigate('StudentProfile', {

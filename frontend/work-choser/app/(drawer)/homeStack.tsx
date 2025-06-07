@@ -39,7 +39,11 @@ export default function HomeStack() {
                 component={AddingThesis}
                 options={{ title: 'Nowa praca dyplomowa' }}
             />
-            <Stack.Screen name="noActiveThesis" component={NoActiveTheses} />
+            <Stack.Screen
+                name="noActiveThesis"
+                component={NoActiveTheses}
+                options={{ title: 'Opis pracy dyplomowej' }}
+            />
         </Stack.Navigator>
     );
 }

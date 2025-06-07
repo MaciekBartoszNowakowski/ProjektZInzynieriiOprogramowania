@@ -11,7 +11,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamList } from '@/types/navigationTypes';
 import { getThesisSubmissions } from '@/api/getThesisSubmissions';
 import { getMyTheses } from '@/api/getMyTheses';
-import { deleteThesis } from '@/api/deleteThesis';
+// import { deleteThesis } from '@/api/deleteThesis';
 import { getUserRole } from '@/api/getUserRole';
 type Props = {
     id: string;
@@ -113,6 +113,7 @@ export default function HomeSupervisorProfile({ id }: Props) {
                                     thesis.url?.split('/').filter(Boolean).pop() ?? '',
                                     10,
                                 );
+                                console.log('ID z URL:', idFromUrl);
                                 if (!isNaN(idFromUrl)) {
                                     const submissions = await getThesisSubmissions(idFromUrl);
                                     counts[idFromUrl] = submissions.filter(
@@ -191,20 +192,20 @@ export default function HomeSupervisorProfile({ id }: Props) {
             updateTags([id.toString()], []);
         }
     };
-    const handleDeleteThesis = async (thesisId: number) => {
-        try {
-            await deleteThesis(thesisId);
-            setThesises((prev) => {
-                const updated = { ...prev };
-                Object.keys(updated).forEach((status) => {
-                    updated[status] = updated[status].filter((t) => t.id !== thesisId);
-                });
-                return updated;
-            });
-        } catch (error) {
-            console.error('Nie udało się usunąć pracy:', error);
-        }
-    };
+    // const handleDeleteThesis = async (thesisId: number) => {
+    //     try {
+    //         await deleteThesis(thesisId);
+    //         setThesises((prev) => {
+    //             const updated = { ...prev };
+    //             Object.keys(updated).forEach((status) => {
+    //                 updated[status] = updated[status].filter((t) => t.id !== thesisId);
+    //             });
+    //             return updated;
+    //         });
+    //     } catch (error) {
+    //         console.error('Nie udało się usunąć pracy:', error);
+    //     }
+    // };
 
     const statusOrder = ['aktywne', 'w realizacji', 'zakończona'];
 
@@ -254,7 +255,7 @@ export default function HomeSupervisorProfile({ id }: Props) {
             <View style={styles.inputBox}>
                 <Text style={styles.titleTextBox}>Opis</Text>
                 <TextInput
-                    style={styles.textBox}
+                    style={styles.textBoxNotCentered}
                     placeholder="Wprowadź swój opis..."
                     value={description}
                     onChangeText={setDescription}
@@ -296,6 +297,7 @@ export default function HomeSupervisorProfile({ id }: Props) {
                                 thesis.url?.split('/').filter(Boolean).pop() ?? '',
                                 10,
                             );
+
                             const count = pendingCounts[thesisId] ?? 0;
                             const dynamicColor = count > 0 ? styles.redText : styles.normalText;
 
@@ -303,9 +305,6 @@ export default function HomeSupervisorProfile({ id }: Props) {
                                 <TouchableOpacity
                                     key={thesisId}
                                     style={styles.supervisorBox}
-                                    // onPress={() =>
-                                    //     navigation.navigate('ThesisOwnerDescription', { thesisId })
-                                    // }
                                     onPress={() => {
                                         if (status === 'w realizacji' || status === 'zakończona') {
                                             navigation.navigate('noActiveThesis', { thesis });
@@ -329,12 +328,12 @@ export default function HomeSupervisorProfile({ id }: Props) {
                                                     : 'Brak oczekujących zgłoszeń'}
                                             </Text>
 
-                                            <TouchableOpacity
+                                            {/* <TouchableOpacity
                                                 style={styles.deleteButton}
                                                 onPress={() => handleDeleteThesis(thesisId)}
                                             >
                                                 <Text style={styles.buttonText}>Usuń pracę</Text>
-                                            </TouchableOpacity>
+                                            </TouchableOpacity> */}
                                         </>
                                     )}
                                 </TouchableOpacity>

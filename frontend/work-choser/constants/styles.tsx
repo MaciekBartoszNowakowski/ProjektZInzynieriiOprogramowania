@@ -69,6 +69,13 @@ export const styles = StyleSheet.create({
         textAlign: 'center',
         flex: 1,
     },
+    textBoxNotCentered: {
+        fontSize: 24,
+        color: black,
+        fontFamily: 'SpaceMono',
+        textAlign: 'justify',
+        flex: 1,
+    },
     inputBox: {
         width: '80%',
         height: 200,

@@ -56,7 +56,7 @@ export default function ThesisDescription() {
 
             <View style={styles.thesisDescriptionBox}>
                 <Text style={styles.titleTextBox}>Opis pracy</Text>
-                <Text style={styles.textBox}>{thesis.description}</Text>
+                <Text style={styles.textBoxNotCentered}>{thesis.description}</Text>
 
                 <TouchableOpacity
                     style={styles.signInButton}

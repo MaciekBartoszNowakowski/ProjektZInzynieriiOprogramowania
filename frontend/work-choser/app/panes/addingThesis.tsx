@@ -136,7 +136,7 @@ export default function AddingThesis() {
                 <TextInput
                     value={description}
                     onChangeText={setDescription}
-                    style={styles.textBox}
+                    style={styles.textBoxNotCentered}
                     multiline
                 />
             </View>

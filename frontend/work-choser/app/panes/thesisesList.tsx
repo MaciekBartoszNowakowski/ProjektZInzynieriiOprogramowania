@@ -26,6 +26,8 @@ export default function ThesisesList() {
     const [availableDepartments, setAvailableDepartments] = useState<
         { id: number; name: string }[]
     >([]);
+    // const [supervisorDepartmentMap, setSupervisorDepartmentMap] = useState<Record<number, string>>({});
+
     const [availableTheses, setAvaliableTheses] = useState<
         {
             thesis_type: any;
@@ -77,6 +79,7 @@ export default function ThesisesList() {
                 try {
                     const allUsers = await getAllUsersPromotors();
                     const map: Record<number, string> = {};
+                    const deptMap: Record<number, string> = {};
 
                     allUsers.forEach((user: any) => {
                         if (user.role?.toLowerCase() === 'promotor') {
@@ -86,6 +89,7 @@ export default function ThesisesList() {
                             if (!isNaN(id)) {
                                 map[id] =
                                     `${user.academic_title} ${user.first_name} ${user.last_name}`;
+                                deptMap[id] = user.department?.name ?? '';
                             } else {
                                 console.warn('Invalid ID in URL:', user.url);
                             }
@@ -93,6 +97,7 @@ export default function ThesisesList() {
                     });
 
                     setPromotorsMap(map);
+                    // setSupervisorDepartmentMap(deptMap);
                 } catch (error) {
                     console.error('Error while fetching promotors:', error);
                 }

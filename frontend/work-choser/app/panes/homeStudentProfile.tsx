@@ -200,7 +200,7 @@ export default function homeStudentProfile({ id }: Props) {
             <View style={styles.inputBox}>
                 <Text style={styles.titleTextBox}>Opis</Text>
                 <TextInput
-                    style={styles.textBox}
+                    style={styles.textBoxNotCentered}
                     placeholder="Wprowadź swój opis..."
                     value={description}
                     onChangeText={setDescription}
