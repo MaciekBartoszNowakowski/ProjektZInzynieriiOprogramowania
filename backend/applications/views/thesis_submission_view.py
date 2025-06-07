@@ -21,7 +21,7 @@ class ThesisSubmissionsView(APIView):
         try:
             thesis = submission_service.get_thesis_with_submissions(request.user, thesis_id)
             submissions = thesis.submission_set.all()
-            submission_serializer = SubmissionSerializer(submissions, many=True)
+            submission_serializer = SubmissionSerializer(submissions, context={'request': request}, many=True)
             
             response_data = {
                 'thesis_id': thesis.id,

@@ -22,7 +22,7 @@ class StudentSubmissionStatusView(RetrieveAPIView):
             submission = submission_service.get_student_submission(request.user)
             
             if submission:
-                submission_serializer = SubmissionSerializer(submission)
+                submission_serializer = SubmissionSerializer(submission, context={'request': request})
                 response_data = {
                     'has_submission': True,
                     'submission': submission_serializer.data
