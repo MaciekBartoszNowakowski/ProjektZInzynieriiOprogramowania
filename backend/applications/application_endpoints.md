@@ -23,7 +23,8 @@ Created submission with thesis and student details.
   "id": "number",
   "student": {
     "index_number": "string",
-    "full_name": "string"
+    "full_name": "string",
+    "url": "string"
   },
   "thesis": {
     "id": "number",
@@ -83,7 +84,8 @@ If student has submission:
     "id": "number",
     "student": {
       "index_number": "string",
-      "full_name": "string"
+      "full_name": "string",
+      "url": "string"
     },
     "thesis": {
       "id": "number",
@@ -171,7 +173,8 @@ Accepted submission details:
   "id": "number",
   "student": {
     "index_number": "string",
-    "full_name": "string"
+    "full_name": "string",
+    "url": "string"
   },
   "thesis": {
     "id": "number",
