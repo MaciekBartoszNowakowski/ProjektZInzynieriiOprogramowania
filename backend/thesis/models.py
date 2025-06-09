@@ -58,7 +58,6 @@ class Thesis(models.Model):
         max_length=100,
         default="English"
     )
-
     tags = models.ManyToManyField(
         Tag,
         related_name='thesis'

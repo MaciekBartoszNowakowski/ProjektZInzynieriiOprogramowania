@@ -5,6 +5,11 @@ from users.serializers.supervisor_thesis_serializer import SupervisorThesisSeria
 
 class ThesisSerializer(serializers.ModelSerializer):
     supervisor_id = SupervisorThesisSerializer()
+    tags = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name'
+    )
 
     class Meta:
         model = Thesis
@@ -16,7 +21,8 @@ class ThesisSerializer(serializers.ModelSerializer):
             'description',
             'max_students',
             'status',
-            'language'
+            'language',
+            'tags'
         ]
         read_only_fields = [
             'id',

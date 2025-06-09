@@ -1,6 +1,8 @@
 from django.utils import timezone
 from thesis.models import Thesis, ThesisStatus, ThesisType
 from users.models import User, SupervisorProfile, Logs, ACADEMIC_TITLE_SORT_ORDER, AcademicTitle
+from common.models import Tag
+from thesis.serializers.thesis_delete_serializer import ThesisDeleteSerializer
 
 
 class InvalidSupervisorIdException(ValueError):
@@ -54,7 +56,8 @@ class ThesisService:
         name = validated_data.get('name')
         description = validated_data.get('description')
         max_students = validated_data.get('max_students', 1) 
-        language = validated_data.get('language', "English") 
+        language = validated_data.get('language', "English")
+        tags = validated_data.get('tags', set())
 
         if thesis_type not in self.type_limits_dict:
             raise InvalidThesisTypeException(f"Błędny typ pracy: {thesis_type}")
@@ -82,6 +85,10 @@ class ThesisService:
         if max_students < 1:
             raise NonPositiveStudentsLimitException(f"Liczba studentów na pracę powinna być dodatnia. Otrzymano {max_students}")
         
+        for tag in tags:
+            if not isinstance(tag, Tag):
+                raise TypeError(f"Błędny typ tagu {tag}: {type(tag)}, powinien być: <class 'common.models.Tag'>")
+
         setattr(supervisor, self.type_limits_dict[thesis_type], limit_left - 1)
         supervisor.save()
 
@@ -94,6 +101,7 @@ class ThesisService:
             status=ThesisStatus.APP_OPEN,
             language=language
         )
+        added_thesis.tags.set(tags)
 
         log_description = f"""Promotor o ID {supervisor.pk} dodał
 nową pracę dyplomową (rodzaj: {thesis_type}) o ID {added_thesis.pk}"""
@@ -119,6 +127,11 @@ nową pracę dyplomową (rodzaj: {thesis_type}) o ID {added_thesis.pk}"""
             thesis_to_update = Thesis.objects.get(pk=thesis_pk, supervisor_id=supervisor)
         except Thesis.DoesNotExist:
             raise InvalidThesisIdException(f"Nie znaleziono pracy o id: {thesis_pk} prowadzonej przez promotora o id: {supervisor.pk}")
+        
+        tags = validated_data.get("tags", set())
+        for tag in tags:
+            if not isinstance(tag, Tag):
+                raise TypeError(f"Błędny typ tagu {tag}: {type(tag)}, powinien być: <class 'common.models.Tag'>")
 
         updated = False
         changes_dict = {}
@@ -127,7 +140,14 @@ nową pracę dyplomową (rodzaj: {thesis_type}) o ID {added_thesis.pk}"""
             old_value = getattr(thesis_to_update, attribute)
             new_value = validated_data[attribute]
 
-            if new_value not in [None, ""] and new_value != old_value:
+            if attribute == "tags":
+                if new_value is None: new_value = []
+                thesis_to_update.tags.set(new_value)
+                
+                if new_value != old_value:
+                    updated = True
+                    changes_dict[attribute] = (old_value, new_value)
+            elif new_value not in [None, ""] and new_value != old_value:
                 updated = True
                 changes_dict[attribute] = (old_value, new_value)
                 setattr(thesis_to_update, attribute, new_value)
@@ -143,7 +163,7 @@ nową pracę dyplomową (rodzaj: {thesis_type}) o ID {added_thesis.pk}"""
         max_students = validated_data.get("max_students")
         if max_students is not None and max_students < 1:
             raise NonPositiveStudentsLimitException(f"Liczba studentów na pracę powinna być dodatnia. Otrzymano {max_students}")
-        
+
         if updated:
             thesis_to_update.updated_at = timezone.now()
             thesis_to_update.save()
@@ -175,6 +195,7 @@ pola w pracy dyplomowej o ID {thesis_to_update.pk}: """
         try:
             supervisor = SupervisorProfile.objects.get(pk=supervisor.pk)
             thesis_to_delete = Thesis.objects.get(pk=thesis_pk, supervisor_id=supervisor)
+            serialized_thesis_data = ThesisDeleteSerializer(thesis_to_delete).data
             Thesis.objects.get(pk=thesis_pk, supervisor_id=supervisor).delete()
 
             thesis_type = thesis_to_delete.thesis_type
@@ -191,7 +212,7 @@ pracę dyplomową (rodzaj: {thesis_type}) o ID {thesis_to_delete.pk}"""
                 timestamp=timezone.now(),
             )
 
-            return thesis_to_delete
+            return serialized_thesis_data
         except SupervisorProfile.DoesNotExist:
             raise InvalidSupervisorIdException(f"Nie znaleziono promotora o id: {supervisor.pk}")
         except Thesis.DoesNotExist:
