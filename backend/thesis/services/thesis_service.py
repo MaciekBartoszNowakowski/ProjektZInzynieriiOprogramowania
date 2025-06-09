@@ -141,12 +141,17 @@ nową pracę dyplomową (rodzaj: {thesis_type}) o ID {added_thesis.pk}"""
             new_value = validated_data[attribute]
 
             if attribute == "tags":
+                old_value = list(thesis_to_update.tags.all())
                 if new_value is None: new_value = []
-                thesis_to_update.tags.set(new_value)
+
+                old_tag_names = [tag.name for tag in old_value]
+                new_tag_names = [tag.name for tag in new_value]
                 
-                if new_value != old_value:
+                if set(new_tag_names) != set(old_tag_names):
                     updated = True
                     changes_dict[attribute] = (old_value, new_value)
+
+                thesis_to_update.tags.set(new_value)
             elif new_value not in [None, ""] and new_value != old_value:
                 updated = True
                 changes_dict[attribute] = (old_value, new_value)
