@@ -25,6 +25,6 @@ class ThesisAddSerializer(serializers.Serializer):
         required=False
     )
     tags = serializers.MultipleChoiceField(
-        choices = Tag.objects.all(),
+        choices = [] if Tag.objects is None else Tag.objects.all(),
         required=False
     )
