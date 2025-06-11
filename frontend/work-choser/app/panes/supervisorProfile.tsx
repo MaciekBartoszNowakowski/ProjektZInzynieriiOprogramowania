@@ -93,7 +93,7 @@ export default function SupervisorProfile() {
                             }}
                         >
                             <Text style={styles.titleTextBox}>{thesis.name}</Text>
-                            <Text style={styles.textBoxNotCentered}>{thesis.description}</Text>
+                            <Text style={styles.textBox}>{thesis.description}</Text>
                         </TouchableOpacity>
                     ))
                 ) : (

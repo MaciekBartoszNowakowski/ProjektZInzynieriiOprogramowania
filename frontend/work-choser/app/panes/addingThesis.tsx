@@ -160,7 +160,12 @@ export default function AddingThesis() {
 
             <View style={styles.inputBox}>
                 <Text style={styles.titleTextBox}>Tytuł pracy</Text>
-                <TextInput value={name} onChangeText={setName} style={styles.textBox} />
+                <TextInput
+                    value={name}
+                    onChangeText={setName}
+                    style={styles.textBoxNotCentered}
+                    multiline
+                />
             </View>
 
             <View style={styles.inputBox}>
