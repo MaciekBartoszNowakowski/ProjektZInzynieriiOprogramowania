@@ -17,6 +17,22 @@ export default function noActiveThesis() {
                 <Text style={styles.titleTextBox}>Typ pracy</Text>
                 <Text style={styles.textBox}>{thesis.thesis_type}</Text>
             </View>
+
+            <View style={styles.defaultBox}>
+                <Text style={styles.titleTextBox}>Tagi</Text>
+                <View style={styles.tagList}>
+                    {Array.isArray(thesis.tags) ? (
+                        thesis.tags.map((tag: string, index: number) => (
+                            <View key={index} style={styles.tagItem}>
+                                <Text style={styles.tagItem}>{tag}</Text>
+                            </View>
+                        ))
+                    ) : (
+                        <Text style={styles.textBox}>—</Text>
+                    )}
+                </View>
+            </View>
+
             <View style={styles.thesisTitleBox}>
                 <Text style={styles.titleTextBox}>Opis pracy</Text>
                 <Text style={styles.textBox}>{thesis.description}</Text>

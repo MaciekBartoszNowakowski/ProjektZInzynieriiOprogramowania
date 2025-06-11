@@ -192,20 +192,6 @@ export default function HomeSupervisorProfile({ id }: Props) {
             updateTags([id.toString()], []);
         }
     };
-    // const handleDeleteThesis = async (thesisId: number) => {
-    //     try {
-    //         await deleteThesis(thesisId);
-    //         setThesises((prev) => {
-    //             const updated = { ...prev };
-    //             Object.keys(updated).forEach((status) => {
-    //                 updated[status] = updated[status].filter((t) => t.id !== thesisId);
-    //             });
-    //             return updated;
-    //         });
-    //     } catch (error) {
-    //         console.error('Nie udało się usunąć pracy:', error);
-    //     }
-    // };
 
     const statusOrder = ['aktywne', 'w realizacji', 'zakończona'];
 
@@ -265,16 +251,18 @@ export default function HomeSupervisorProfile({ id }: Props) {
             <View style={styles.defaultBox}>
                 <View style={styles.marginTop10}>
                     <Text style={styles.textBox}>
-                        Prace Licencjackie: {workload.bachelor} / {limits.bachelor}
+                        Prace Licencjackie: {workload.bachelor} /{' '}
+                        {limits.bachelor + workload.bachelor}
                     </Text>
                     <Text style={styles.textBox}>
-                        Prace Inżynierskie: {workload.engineering} / {limits.engineering}
+                        Prace Inżynierskie: {workload.engineering} /{' '}
+                        {limits.engineering + workload.engineering}
                     </Text>
                     <Text style={styles.textBox}>
-                        Prace Magisterskie: {workload.master} / {limits.master}
+                        Prace Magisterskie: {workload.master} / {limits.master + workload.master}
                     </Text>
                     <Text style={styles.textBox}>
-                        Prace Doktorskie: {workload.phd} / {limits.phd}
+                        Prace Doktorskie: {workload.phd} / {limits.phd + workload.phd}
                     </Text>
                 </View>
                 <TouchableOpacity
@@ -316,6 +304,10 @@ export default function HomeSupervisorProfile({ id }: Props) {
                                     }}
                                 >
                                     <Text style={styles.titleTextBox}>{thesis.name}</Text>
+                                    <Text style={styles.textBox}>
+                                        Tagi:{' '}
+                                        {Array.isArray(thesis.tags) ? thesis.tags.join(', ') : '—'}
+                                    </Text>
                                     <Text style={styles.textBox}>
                                         Typ pracy: {thesis.thesis_type}
                                     </Text>

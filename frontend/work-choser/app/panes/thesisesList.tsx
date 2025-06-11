@@ -35,6 +35,7 @@ export default function ThesisesList() {
             name: string;
             url: string;
             supervisor_id: number;
+            tags: string[];
         }[]
     >([]);
     const [promotorsMap, setPromotorsMap] = useState<Record<number, string>>({});
@@ -280,6 +281,9 @@ export default function ThesisesList() {
                         <Text style={styles.titleTextBox}>{thesis.name}</Text>
                         <Text style={styles.textBox}>
                             Promotor: {promotorsMap[thesis.supervisor_id] ?? '—'}
+                        </Text>
+                        <Text style={styles.textBox}>
+                            Tagi: {Array.isArray(thesis.tags) ? thesis.tags.join(', ') : '—'}
                         </Text>
                         <Text style={styles.textBox}>
                             Typ pracy: {thesis_type[thesis.thesis_type] ?? thesis.thesis_type}

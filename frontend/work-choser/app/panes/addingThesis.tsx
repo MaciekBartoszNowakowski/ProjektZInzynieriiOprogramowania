@@ -7,6 +7,10 @@ import { addThesis } from '@/api/addThesis';
 import { getUserRole } from '@/api/getUserRole';
 import { getMyTheses } from '@/api/getMyTheses';
 
+import { getAllTags } from '@/api/getAllTags';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
 export default function AddingThesis() {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -18,6 +22,32 @@ export default function AddingThesis() {
     const [type, setType] = useState<'licencjacka' | 'inżynierska' | 'magisterska' | 'doktorska'>(
         'inżynierska',
     );
+
+    const [availableTags, setAvailableTags] = useState([]);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [isTagsOpen, setIsTagsOpen] = useState(false);
+
+    useFocusEffect(
+        useCallback(() => {
+            const fetchTags = async () => {
+                try {
+                    const data = await getAllTags();
+                    setAvailableTags(data);
+                } catch (error) {
+                    console.error('Błąd pobierania tagów:', error);
+                }
+            };
+
+            setSelectedTags([]);
+            fetchTags();
+        }, []),
+    );
+
+    const toggleTag = (tag: string) => {
+        setSelectedTags((prev) =>
+            prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+        );
+    };
 
     const typeLabelMap: Record<typeof type, string> = {
         licencjacka: 'Licencjacka',
@@ -96,6 +126,7 @@ export default function AddingThesis() {
             max_students: maxStudents,
             language,
             thesis_type: type,
+            tags: selectedTags,
         };
 
         const result = await addThesis(payload);
@@ -113,16 +144,17 @@ export default function AddingThesis() {
             <View style={styles.defaultBox}>
                 <Text style={styles.titleTextBox}>Limity prac</Text>
                 <Text style={styles.textBox}>
-                    Licencjackie: {workload.bachelor} / {limits.bachelor}
+                    Licencjackie: {workload.bachelor} / {limits.bachelor + workload.bachelor}
                 </Text>
                 <Text style={styles.textBox}>
-                    Inżynierskie: {workload.engineering} / {limits.engineering}
+                    Inżynierskie: {workload.engineering} /{' '}
+                    {limits.engineering + workload.engineering}
                 </Text>
                 <Text style={styles.textBox}>
-                    Magisterskie: {workload.master} / {limits.master}
+                    Magisterskie: {workload.master} / {limits.master + workload.master}
                 </Text>
                 <Text style={styles.textBox}>
-                    Doktorskie: {workload.phd} / {limits.phd}
+                    Doktorskie: {workload.phd} / {limits.phd + workload.phd}
                 </Text>
             </View>
 
@@ -166,6 +198,44 @@ export default function AddingThesis() {
                                 </TouchableOpacity>
                             ),
                         )}
+                    </View>
+                )}
+            </View>
+
+            <View style={styles.defaultBox}>
+                <TouchableOpacity
+                    onPress={() => setIsTagsOpen((prev) => !prev)}
+                    style={styles.filterHeader}
+                >
+                    <Text style={styles.titleTextBox}>
+                        {isTagsOpen ? 'Ukryj tagi' : 'Pokaż tagi'}
+                    </Text>
+                </TouchableOpacity>
+
+                {selectedTags.length > 0 && (
+                    <View style={styles.selectedTagsBox}>
+                        {selectedTags.map((tag, index) => (
+                            <Text key={index} style={styles.selectedTagText}>
+                                {tag}
+                            </Text>
+                        ))}
+                    </View>
+                )}
+
+                {isTagsOpen && (
+                    <View style={styles.tagList}>
+                        {availableTags.map((tag: { name: string }, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                onPress={() => toggleTag(tag.name)}
+                                style={[
+                                    styles.tagItem,
+                                    selectedTags.includes(tag.name) && styles.tagItemSelected,
+                                ]}
+                            >
+                                <Text>{tag.name}</Text>
+                            </TouchableOpacity>
+                        ))}
                     </View>
                 )}
             </View>

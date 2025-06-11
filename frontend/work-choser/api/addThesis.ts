@@ -4,6 +4,7 @@ export const addThesis = async (data: {
     max_students?: number;
     language?: string;
     thesis_type: string;
+    tags: string[];
 }) => {
     try {
         const response = await fetch('http://localhost:8000/thesis/add/', {
