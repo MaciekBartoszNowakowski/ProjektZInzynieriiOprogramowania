@@ -56,17 +56,24 @@ export const styles = StyleSheet.create({
         marginTop: 30,
     },
     titleTextBox: {
-        fontSize: 16,
+        fontSize: 24,
         fontWeight: 'bold',
         color: charcoalGrey,
         fontFamily: 'SpaceMono',
         textAlign: 'center',
     },
     textBox: {
-        fontSize: 16,
+        fontSize: 24,
         color: black,
         fontFamily: 'SpaceMono',
         textAlign: 'center',
+        flex: 1,
+    },
+    textBoxNotCentered: {
+        fontSize: 24,
+        color: black,
+        fontFamily: 'SpaceMono',
+        textAlign: 'justify',
         flex: 1,
     },
     inputBox: {
@@ -83,7 +90,7 @@ export const styles = StyleSheet.create({
     },
     thesisTitleBox: {
         width: '80%',
-        height: 210,
+        // height: 210,
         backgroundColor: brightGrey,
         borderRadius: 10,
         padding: 10,
@@ -108,25 +115,41 @@ export const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderRadius: 8,
     },
+    addThesesButton: {
+        backgroundColor: greenColor,
+        alignSelf: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+    },
+    deleteButton: {
+        backgroundColor: 'red',
+        alignSelf: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+        marginTop: 10,
+    },
+
     buttonText: {
         color: 'white',
-        fontSize: 16,
+        fontSize: 24,
         fontWeight: 'bold',
     },
     slotValue: {
         fontWeight: 'bold',
-        color: 'red',
     },
     supervisorBox: {
         width: '80%',
-        height: 70,
         backgroundColor: brightGrey,
         borderBottomWidth: 1,
         borderBottomColor: mediumGrey,
         alignSelf: 'center',
+        padding: 10,
+        borderRadius: 10,
     },
     pageTitile: {
-        fontSize: 36,
+        fontSize: 48,
         fontWeight: 'bold',
         color: greenColor,
         fontFamily: 'SpaceMono',
@@ -182,6 +205,9 @@ export const styles = StyleSheet.create({
     tagItemSelected: {
         backgroundColor: '#aed581',
     },
+    marginTop10: {
+        marginTop: 10,
+    },
     applyFiltersButton: {
         backgroundColor: greenColor,
         alignItems: 'center',
@@ -205,7 +231,7 @@ export const styles = StyleSheet.create({
         borderRadius: 12,
         marginRight: 8,
         marginBottom: 8,
-        fontSize: 14,
+        fontSize: 20,
     },
     freeSpace: {
         height: 50,
@@ -243,7 +269,7 @@ export const styles = StyleSheet.create({
     menuNameStyle: {
         color: listGrey,
         textAlign: 'center',
-        fontSize: 30,
+        fontSize: 40,
     },
     loginContainer: {
         padding: 24,
@@ -251,7 +277,7 @@ export const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     loginLabel: {
-        fontSize: 16,
+        fontSize: 20,
         marginBottom: 4,
     },
     loginInput: {
@@ -260,7 +286,7 @@ export const styles = StyleSheet.create({
         borderRadius: 6,
         padding: 12,
         marginBottom: 16,
-        fontSize: 16,
+        fontSize: 20,
     },
     loginButtonContainer: {
         marginTop: 8,
@@ -274,16 +300,24 @@ export const styles = StyleSheet.create({
         color: listGrey,
         fontWeight: 'bold' as const,
         marginLeft: 10,
+        fontSize: 24,
+        lineHeight: 30,
+        paddingVertical: 4,
     },
     inactiveLabelStyle: {
         color: listGrey,
         fontWeight: 'normal' as const,
         marginLeft: 10,
+        fontSize: 24,
+        lineHeight: 30,
+        paddingVertical: 4,
     },
     activeItemStyle: {
         backgroundColor: selectedItemGreen,
         borderTopWidth: 1,
         borderColor: black,
+        flexShrink: 1,
+        paddingRight: 16,
     },
     inactiveItemStyle: {
         backgroundColor: 'transparent',
@@ -306,7 +340,7 @@ export const styles = StyleSheet.create({
         paddingBottom: 16,
     },
     titleStudentListText: {
-        fontSize: 16,
+        fontSize: 24,
         fontWeight: 'bold',
         color: charcoalGrey,
         fontFamily: 'SpaceMono',
@@ -330,5 +364,16 @@ export const styles = StyleSheet.create({
     flexViewStyle: {
         flexDirection: 'row',
         gap: 8,
+    },
+    subtitle: {
+        fontSize: 32,
+        textAlign: 'center',
+        fontFamily: 'SpaceMono',
+    },
+    redText: {
+        color: 'red',
+    },
+    normalText: {
+        color: black,
     },
 });

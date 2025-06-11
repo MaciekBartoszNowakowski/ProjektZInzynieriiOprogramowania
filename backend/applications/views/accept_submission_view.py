@@ -20,7 +20,7 @@ class AcceptSubmissionView(APIView):
         
         try:
             submission = submission_service.accept_submission(request.user, submission_id)
-            submission_serializer = SubmissionSerializer(submission)
+            submission_serializer = SubmissionSerializer(submission, context={'request': request})
             return Response(submission_serializer.data, status=status.HTTP_200_OK)
         
         except InvalidSupervisorIdException as e:

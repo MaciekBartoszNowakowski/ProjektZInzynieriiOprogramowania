@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { styles } from '@/constants/styles';
 import { getThesisById } from '@/api/getThesisById';
+import { getThesisSubmissions } from '@/api/getThesisSubmissions';
 import { StackParamList } from '@/types/navigationTypes';
 import PendingStudentList from '@/components/custom_components/pendingStudentList';
 
@@ -11,55 +12,75 @@ export default function ThesisOwnerDescription() {
     const { thesisId } = route.params;
 
     const [thesis, setThesis] = useState<any>(null);
+    const [submissions, setSubmissions] = useState<any[]>([]);
+
+    const refreshData = async () => {
+        try {
+            const thesisData = await getThesisById(thesisId);
+            setThesis(thesisData);
+
+            const submissionData = await getThesisSubmissions(thesisId);
+            setSubmissions(submissionData);
+        } catch (error) {
+            console.error('Failed to fetch data:', error);
+        }
+    };
 
     useEffect(() => {
-        const fetchThesis = async () => {
-            try {
-                console.log('Fetching thesis with ID:', thesisId);
-                const data = await getThesisById(thesisId);
-                console.log('Fetched thesis:', data);
-                setThesis(data);
-            } catch (error) {
-                console.error('Failed to fetch thesis:', error);
-            }
-        };
-
-        fetchThesis();
+        refreshData();
     }, [thesisId]);
 
     if (!thesis) {
         return (
             <View style={styles.container}>
-                <Text style={styles.textBox}>Loading thesis data...</Text>
+                <Text style={styles.textBox}>Pobieranie danych...</Text>
             </View>
         );
     }
 
     const supervisor = thesis.supervisor_id.user;
     const fullName = `${supervisor.academic_title} ${supervisor.first_name} ${supervisor.last_name}`;
+    const acceptedCount = submissions.filter((s) => s.status === 'zaakceptowane').length;
+    const pendingCount = submissions.filter((s) => s.status === 'aktywne').length;
+    const availableCount = thesis.max_students - acceptedCount;
 
     return (
         <ScrollView style={styles.container}>
             <View style={styles.thesisTitleBox}>
-                <Text style={styles.titleTextBox}>Thesis Title</Text>
+                <Text style={styles.titleTextBox}>Tytuł pracy</Text>
                 <Text style={styles.textBox}>{thesis.name}</Text>
 
-                <Text style={styles.titleTextBox}>Supervisor</Text>
+                <Text style={styles.titleTextBox}>Promotor</Text>
                 <Text style={styles.textBox}>{fullName}</Text>
 
-                <Text style={styles.titleTextBox}>Availability</Text>
+                <Text style={styles.titleTextBox}>Dostępność</Text>
                 <Text style={styles.textBox}>
-                    Free slots: <Text style={styles.slotValue}>x</Text> Busy slots:{' '}
-                    <Text style={styles.slotValue}>y</Text> Pending slots:{' '}
-                    <Text style={styles.slotValue}>z</Text>
+                    Dostępne miejsca: <Text style={styles.slotValue}>{availableCount} </Text>
+                    Zajęte miejsca: <Text style={styles.slotValue}>{acceptedCount} </Text>
+                    Oczekujące zgłoszenia: <Text style={styles.slotValue}>{pendingCount}</Text>
                 </Text>
             </View>
 
-            <View style={styles.thesisDescriptionBox}>
-                <Text style={styles.titleTextBox}>Thesis Description</Text>
-                <Text style={styles.textBox}>{thesis.description}</Text>
+            <View style={styles.defaultBox}>
+                <Text style={styles.titleTextBox}>Tagi</Text>
+                <View style={styles.tagList}>
+                    {Array.isArray(thesis.tags) ? (
+                        thesis.tags.map((tag: string, index: number) => (
+                            <View key={index} style={styles.tagItem}>
+                                <Text style={styles.tagItem}>{tag}</Text>
+                            </View>
+                        ))
+                    ) : (
+                        <Text style={styles.textBox}>—</Text>
+                    )}
+                </View>
             </View>
-            <PendingStudentList />
+
+            <View style={styles.thesisDescriptionBox}>
+                <Text style={styles.titleTextBox}>Opis pracy</Text>
+                <Text style={styles.textBoxNotCentered}>{thesis.description}</Text>
+            </View>
+            <PendingStudentList thesisId={thesisId} />
         </ScrollView>
     );
 }

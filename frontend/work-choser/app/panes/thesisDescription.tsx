@@ -4,6 +4,8 @@ import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { styles } from '@/constants/styles';
 import { getThesisById } from '@/api/getThesisById';
 import { StackParamList } from '@/types/navigationTypes';
+import { submitThesisApplication } from '@/api/submitThesisApplication';
+import { showMessage } from '@/utils/showMessage';
 
 export default function ThesisDescription() {
     const route = useRoute<RouteProp<StackParamList, 'ThesisDescription'>>();
@@ -29,7 +31,7 @@ export default function ThesisDescription() {
     if (!thesis) {
         return (
             <View style={styles.container}>
-                <Text style={styles.textBox}>Loading thesis data...</Text>
+                <Text style={styles.textBox}>Pobieranie danych...</Text>
             </View>
         );
     }
@@ -40,29 +42,63 @@ export default function ThesisDescription() {
     return (
         <ScrollView style={styles.container}>
             <View style={styles.thesisTitleBox}>
-                <Text style={styles.titleTextBox}>Thesis Title</Text>
+                <Text style={styles.titleTextBox}>Tytuł pracy</Text>
                 <Text style={styles.textBox}>{thesis.name}</Text>
 
-                <Text style={styles.titleTextBox}>Supervisor</Text>
+                <Text style={styles.titleTextBox}>Promotor</Text>
                 <Text style={styles.textBox}>{fullName}</Text>
 
-                <Text style={styles.titleTextBox}>Availability</Text>
+                <Text style={styles.titleTextBox}>Dostępność</Text>
                 <Text style={styles.textBox}>
-                    Free slots: <Text style={styles.slotValue}>x</Text> Busy slots:{' '}
-                    <Text style={styles.slotValue}>y</Text> Pending slots:{' '}
-                    <Text style={styles.slotValue}>z</Text>
+                    Ilość miejsc: <Text style={styles.slotValue}>{thesis.max_students}</Text>
                 </Text>
             </View>
 
+            <View style={styles.defaultBox}>
+                <Text style={styles.titleTextBox}>Tagi</Text>
+                <View style={styles.tagList}>
+                    {Array.isArray(thesis.tags) ? (
+                        thesis.tags.map((tag: string, index: number) => (
+                            <View key={index} style={styles.tagItem}>
+                                <Text style={styles.tagItem}>{tag}</Text>
+                            </View>
+                        ))
+                    ) : (
+                        <Text style={styles.textBox}>—</Text>
+                    )}
+                </View>
+            </View>
+
             <View style={styles.thesisDescriptionBox}>
-                <Text style={styles.titleTextBox}>Thesis Description</Text>
-                <Text style={styles.textBox}>{thesis.description}</Text>
+                <Text style={styles.titleTextBox}>Opis pracy</Text>
+                <Text style={styles.textBoxNotCentered}>{thesis.description}</Text>
 
                 <TouchableOpacity
                     style={styles.signInButton}
-                    onPress={() => console.log('Button pressed!')}
+                    onPress={async () => {
+                        const result = await submitThesisApplication(thesisId);
+
+                        if (result.success) {
+                            showMessage('Sukces', 'Zgłoszono się pomyślnie do pracy!');
+                        } else {
+                            const err = result.error;
+                            const msg =
+                                typeof err === 'string' ? err : err?.error || 'Nieznany błąd';
+
+                            if (msg.includes('już zapisany')) {
+                                showMessage('Nie można się zapisać', 'Masz już przypisaną pracę.');
+                            } else if (msg.includes('APP_OPEN')) {
+                                showMessage(
+                                    'Nie można się zapisać',
+                                    'Praca nie jest dostępna do zapisów.',
+                                );
+                            } else {
+                                showMessage('Błąd', `Nie udało się zapisać:\n${msg}`);
+                            }
+                        }
+                    }}
                 >
-                    <Text style={styles.buttonText}>Sign Up</Text>
+                    <Text style={styles.buttonText}>Zapisz się</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>

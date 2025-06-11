@@ -12,7 +12,10 @@ Adding thesis by authenticated supervisor.
   "name": "string", (required)
   "description": "string", (optional)
   "max_students": "number", (optional, default=1, must be positive)
-  "language": "string" (optional, default="English")
+  "language": "string", (optional, default="English")
+  "tags": [
+    "string"
+  ]
 }
 ```
 
@@ -33,7 +36,8 @@ Returns confirmation the thesis was added successfully.
 - - wrong thesis type,
 - - supervisor does not have title required to supervise specific thesis type (e. g. has a Master title and wants to create phd thesis),
 - - supervisor has already used his limit for given thesis type (adding next one would cause exceeding the limit),
-- - given `max_students` value is nonpositive. 
+- - given `max_students` value is nonpositive,
+- - not all tags are of a correct type (`common.models.Tag`)
 
 ### PUT /thesis/update/{id}
 
@@ -48,6 +52,9 @@ Updating specific thesis (given by id) by supervisor who added it.
   "max_students": "number", (optional, if not given stays the same, must be positive)
   "status": "string", (required)
   "language": "string" (optional, if not given stays the same)
+  "tags": [
+    "string"
+  ]
 }
 ```
 
@@ -64,7 +71,10 @@ Thesis after the update.
   "description": "string",
   "max_students": "number",
   "status": "string",
-  "language": "string"
+  "language": "string",
+  "tags": [
+    "string"
+  ]
 }
 ```
 
@@ -75,7 +85,8 @@ Thesis after the update.
 - - thesis id is invalid (not found in the database),
 - - thesis was not added by requesting supervisor,
 - - wrong thesis status,
-- - given `max_students` value is nonpositive. 
+- - given `max_students` value is nonpositive,
+- - not all tags are of a correct type (`common.models.Tag`)
 
 ### DELETE /thesis/delete/{id}
 
@@ -98,7 +109,10 @@ Thesis that has just been deleted.
   "description": "string",
   "max_students": "number",
   "status": "string",
-  "language": "string"
+  "language": "string",
+  "tags": [
+    "string"
+  ]
 }
 ```
 
@@ -130,7 +144,10 @@ All available theses list.
     "name": "string",
     "description": "string",
     "max_students": "number",
-    "language": "string"
+    "language": "string",
+    "tags": [
+      "string"
+    ]
   },
   // ... more theses
 ]
@@ -167,7 +184,10 @@ No request body required.
   "name": "string",
   "description": "string",
   "max_students": "number",
-  "language": "string"
+  "language": "string",
+  "tags": [
+    "string"
+  ]
 }
 ```
 
@@ -195,7 +215,10 @@ Theses list.
     "description": "string",
     "max_students": "number",
     "status": "string",
-    "language": "string"
+    "language": "string",
+    "tags": [
+      "string"
+    ]
   },
   // ... more theses
 ]
@@ -234,7 +257,10 @@ All available theses that comply with query parameters. For no parameters given 
     "name": "string",
     "description": "string",
     "max_students": "number",
-    "language": "string"
+    "language": "string",
+    "tags": [
+      "string"
+    ]
   },
   // ... more theses
 ]

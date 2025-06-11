@@ -11,11 +11,11 @@ class TestThesisService(TestCase):
         self.department_2 = Department.objects.create(name="Wydział B")
         self.department_3 = Department.objects.create(name="Wydział AC")
 
-        tag_python = Tag.objects.create(name="Python")
-        tag_ml = Tag.objects.create(name="ML")
-        tag_math = Tag.objects.create(name="Math")
-        tag_java = Tag.objects.create(name="Java")
-        tag_graph = Tag.objects.create(name="Graph Algs")
+        self.tag_python = Tag.objects.create(name="Python")
+        self.tag_ml = Tag.objects.create(name="ML")
+        self.tag_math = Tag.objects.create(name="Math")
+        self.tag_java = Tag.objects.create(name="Java")
+        self.tag_graph = Tag.objects.create(name="Graph Algs")
 
         self.supervisor_1 = SupervisorProfile.objects.create(
             user=User.objects.create_user(
@@ -28,8 +28,8 @@ class TestThesisService(TestCase):
             )
         )
 
-        self.supervisor_1.user.tags.add(tag_math)
-        self.supervisor_1.user.tags.add(tag_ml)
+        self.supervisor_1.user.tags.add(self.tag_math)
+        self.supervisor_1.user.tags.add(self.tag_ml)
 
         self.supervisor_2 = SupervisorProfile.objects.create(
             user=User.objects.create_user(
@@ -42,8 +42,8 @@ class TestThesisService(TestCase):
             )
         )
 
-        self.supervisor_2.user.tags.add(tag_java)
-        self.supervisor_2.user.tags.add(tag_ml)
+        self.supervisor_2.user.tags.add(self.tag_java)
+        self.supervisor_2.user.tags.add(self.tag_ml)
 
         self.supervisor_3 = SupervisorProfile.objects.create(
             user=User.objects.create_user(
@@ -56,8 +56,8 @@ class TestThesisService(TestCase):
             )
         )
 
-        self.supervisor_3.user.tags.add(tag_python)
-        self.supervisor_3.user.tags.add(tag_graph)
+        self.supervisor_3.user.tags.add(self.tag_python)
+        self.supervisor_3.user.tags.add(self.tag_graph)
         
         self.supervisor_4 = SupervisorProfile.objects.create(
             user=User.objects.create_user(
@@ -70,9 +70,9 @@ class TestThesisService(TestCase):
             )
         )
 
-        self.supervisor_4.user.tags.add(tag_python)
-        self.supervisor_4.user.tags.add(tag_ml)
-        self.supervisor_4.user.tags.add(tag_math)
+        self.supervisor_4.user.tags.add(self.tag_python)
+        self.supervisor_4.user.tags.add(self.tag_ml)
+        self.supervisor_4.user.tags.add(self.tag_math)
 
         self.non_supervisor = User.objects.create_user(
             username="NaPewno",
@@ -122,7 +122,8 @@ class TestThesisService(TestCase):
                 validated_data = {
                     "thesis_type": ThesisType.ENGINEERING,
                     "name": "Wizualizacja przepływu gradientów w sieci neuronowej",
-                    "max_students": 3
+                    "max_students": 3,
+                    "tags": { self.tag_python, self.tag_ml }
                 }
             )
 
@@ -147,7 +148,8 @@ class TestThesisService(TestCase):
                     "thesis_type": ThesisType.DOCTOR,
                     "name": "Struktury chemiczne substancji opisane w języku Java",
                     "max_students": 1,
-                    "language": "Polish"
+                    "language": "Polish",
+                    "tags": { self.tag_java }
                 }
             )
 
@@ -168,10 +170,6 @@ class TestThesisService(TestCase):
                 }
             )
 
-            # dajmy Panu Włodzimierzowi z powrotem gotować <3
-            self.supervisor_2.bacherol_limit = 1
-            self.supervisor_2.save()
-
 
     def test_adding_thesis_nonpositive_max_students(self):
         with self.assertRaises(NonPositiveStudentsLimitException):
@@ -180,7 +178,21 @@ class TestThesisService(TestCase):
                 validated_data = {
                     "thesis_type": ThesisType.ENGINEERING,
                     "name": "Wizualizacja przepływu gradientów w sieci neuronowej",
-                    "max_students": -3
+                    "max_students": -3,
+                    "tags": { self.tag_python, self.tag_ml }
+                }
+            )
+
+
+    def test_adding_thesis_wrong_tag_type(self):
+        with self.assertRaises(TypeError):
+            self.thesis_service.add_new_thesis(
+                supervisor=self.supervisor_4,
+                validated_data = {
+                    "thesis_type": ThesisType.ENGINEERING,
+                    "name": "Wizualizacja przepływu gradientów w sieci neuronowej",
+                    "max_students": 3,
+                    "tags": { "Python", "ML" }
                 }
             )
 
@@ -191,7 +203,8 @@ class TestThesisService(TestCase):
             validated_data = {
                 "thesis_type": ThesisType.ENGINEERING,
                 "name": "Wizualizacja przepływu gradientów w sieci neuronowej",
-                "max_students": 3
+                "max_students": 3,
+                "tags": { self.tag_python, self.tag_ml }
             }
         )
 
@@ -201,7 +214,8 @@ class TestThesisService(TestCase):
                 "thesis_type": ThesisType.BACHELOR,
                 "name": "Struktury chemiczne substancji opisane w języku Java",
                 "max_students": 1,
-                "language": "Polish"
+                "language": "Polish",
+                "tags": { self.tag_java }
             }
         )
 
@@ -219,7 +233,8 @@ class TestThesisService(TestCase):
             validated_data = {
                 "thesis_type": ThesisType.DOCTOR,
                 "name": "Zastosowanie algorytmów grafowych w bioinformatyce i leczeniu nowotworów",
-                "language": "Spanish"
+                "language": "Spanish",
+                "tags": { self.tag_graph }
             }   
         )
 
@@ -233,7 +248,8 @@ class TestThesisService(TestCase):
                 thesis_pk=self.thesis_1.pk,
                 validated_data = {
                     "name": "Wizualizacja przepływu gradientów w sieci neuronowej",
-                    "status": ThesisStatus.APP_OPEN
+                    "status": ThesisStatus.APP_OPEN,
+                    "tags": { self.tag_python, self.tag_ml }
                 }
             )
 
@@ -242,10 +258,11 @@ class TestThesisService(TestCase):
         with self.assertRaises(InvalidThesisIdException):
             self.thesis_service.update_thesis(
                 supervisor=self.supervisor_4,
-                thesis_pk=-1, # id są normalnie większe niż 0 (?)
+                thesis_pk=-1,
                 validated_data = {
                     "name": "Wizualizacja przepływu gradientów w sieci neuronowej",
-                    "status": ThesisStatus.APP_OPEN
+                    "status": ThesisStatus.APP_OPEN,
+                    "tags": { self.tag_python, self.tag_ml }
                 }
             )
 
@@ -257,7 +274,22 @@ class TestThesisService(TestCase):
                 thesis_pk=self.thesis_1.pk,
                 validated_data = {
                     "name": "Wizualizacja przepływu gradientów w sieci neuronowej",
-                    "status": ThesisStatus.APP_OPEN
+                    "status": ThesisStatus.APP_OPEN,
+                    "tags": { self.tag_python, self.tag_ml }
+                }
+            )
+
+
+    def test_update_thesis_wrong_tag_type(self):
+        with self.assertRaises(TypeError):
+            self.thesis_service.update_thesis(
+                supervisor=self.supervisor_4,
+                thesis_pk=self.thesis_1.pk,
+                validated_data = {
+                    "thesis_type": ThesisType.ENGINEERING,
+                    "name": "Wizualizacja przepływu gradientów w sieci neuronowej",
+                    "max_students": 3,
+                    "tags": { "Python", "ML" }
                 }
             )
 
@@ -282,7 +314,8 @@ class TestThesisService(TestCase):
                 validated_data = {
                     "name": "Wizualizacja przepływu gradientów w sieci neuronowej",
                     "status": ThesisStatus.APP_CLOSED,
-                    "max_students": -3
+                    "max_students": -3,
+                    "tags": { self.tag_python, self.tag_ml }
                 }
             )
 
@@ -302,6 +335,7 @@ class TestThesisService(TestCase):
 
         self.assertEqual(self.thesis_1.status, ThesisStatus.APP_CLOSED)
         self.assertEqual(self.thesis_1.language, "Polish")
+        self.assertEqual(self.thesis_1.tags.count(), 0)
         self.assertEqual(Thesis.objects.all().count(), 4)
 
 

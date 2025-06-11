@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from thesis.models import ThesisType
+from common.models import Tag
 
 
 class ThesisAddSerializer(serializers.Serializer):
@@ -21,5 +22,9 @@ class ThesisAddSerializer(serializers.Serializer):
     )
     language = serializers.CharField(
         max_length=100, 
+        required=False
+    )
+    tags = serializers.MultipleChoiceField(
+        choices = [] if Tag.objects is None else Tag.objects.all(),
         required=False
     )

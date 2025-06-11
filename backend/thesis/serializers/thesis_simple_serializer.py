@@ -3,6 +3,12 @@ from thesis.models import Thesis
 
 
 class ThesisSimpleSerializer(serializers.ModelSerializer):
+    tags = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='name'
+    )
+
     class Meta:
         model = Thesis
         fields = [
@@ -12,7 +18,8 @@ class ThesisSimpleSerializer(serializers.ModelSerializer):
             'description',
             'max_students',
             'status',
-            'language'
+            'language',
+            'tags'
         ]
         read_only_fields = [
             'id',
@@ -21,5 +28,6 @@ class ThesisSimpleSerializer(serializers.ModelSerializer):
             'description',
             'max_students',
             'status',
-            'language'
+            'language',
+            'tags'
         ]

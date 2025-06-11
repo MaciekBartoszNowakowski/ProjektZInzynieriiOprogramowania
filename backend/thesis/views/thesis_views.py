@@ -102,15 +102,14 @@ class ThesisDeleteView(DestroyAPIView):
         service = ThesisService()
         
         try:
-            deleted_thesis = service.delete_thesis(
+            deleted_thesis_data = service.delete_thesis(
                 supervisor=supervisor,
                 thesis_pk=pk,
             )
         except Exception as e:
             return Response({ "detail": str(e) }, status=status.HTTP_400_BAD_REQUEST)
         
-        output_serializer = ThesisUpdateSerializer(deleted_thesis)
-        return Response(output_serializer.data, status=status.HTTP_200_OK)
+        return Response(deleted_thesis_data, status=status.HTTP_200_OK)
     
 
 class NoThesisFoundException(APIException):

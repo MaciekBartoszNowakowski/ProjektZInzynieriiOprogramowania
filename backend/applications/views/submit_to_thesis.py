@@ -27,7 +27,7 @@ class SubmitToThesisView(CreateAPIView):
         
         try:
             submission = submission_service.submit_to_thesis(request.user, thesis_id)
-            submission_serializer = CreatedSubmissionSerializer(submission)
+            submission_serializer = CreatedSubmissionSerializer(submission, context={'request': request})
             return Response(submission_serializer.data, status=status.HTTP_201_CREATED)
         
         except InvalidStudentIdException as e:

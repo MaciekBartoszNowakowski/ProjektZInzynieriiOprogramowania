@@ -9,12 +9,21 @@ export const getUserRole = async () => {
 
         const data = await response.json();
 
-        if (response.ok && data.user && data.user.role && data.user?.id) {
-            return { role: data.user.role, id: data.user.id };
+        if (response.ok && data.user && data.user.role && data.user.id) {
+            return {
+                id: data.user.id,
+                role: data.user.role,
+                bachelor_limit: data.bacherol_limit ?? 0,
+                engineering_limit: data.engineering_limit ?? 0,
+                master_limit: data.master_limit ?? 0,
+                phd_limit: data.phd_limit ?? 0,
+            };
         } else {
-            console.error('empty role: ', data);
+            console.error('Brak danych użytkownika lub roli:', data);
+            return null;
         }
     } catch (error) {
-        console.error('Web error: ', error);
+        console.error('Błąd podczas pobierania roli użytkownika:', error);
+        throw error;
     }
 };

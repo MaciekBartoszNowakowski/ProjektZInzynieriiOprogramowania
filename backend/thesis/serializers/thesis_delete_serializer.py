@@ -2,11 +2,7 @@ from rest_framework import serializers
 from thesis.models import Thesis
 
 
-class ThesisListSerializer(serializers.ModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='available-theses-detail', 
-        lookup_field='pk'
-    )
+class ThesisDeleteSerializer(serializers.ModelSerializer):
     tags = serializers.SlugRelatedField(
         many=True,
         read_only=True,
@@ -16,22 +12,24 @@ class ThesisListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Thesis
         fields = [
-            'url',
+            'id',
             'supervisor_id',
             'thesis_type',
             'name',
             'description',
             'max_students',
+            'status',
             'language',
             'tags'
         ]
         read_only_fields = [
-            'url',
+            'id',
             'supervisor_id',
             'thesis_type',
             'name',
             'description',
             'max_students',
+            'status',
             'language',
             'tags'
         ]
