@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:latest
+    image: 006maciek420/io-db:latest
     container_name: postgres_db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
@@ -50,6 +50,35 @@ services:
             - db.sqlite3 
             - '*.md'
     command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+
+  frontend:
+      build:
+        context: ../frontend/work-choser
+        dockerfile: Dockerfile
+      container_name: expo_frontend
+      working_dir: /app
+      ports:
+        - "19000:19000"
+        - "19001:19001"
+        - "19002:19002"
+        - "19006:19006"
+        - "8081:8081"
+      stdin_open: true
+      tty: true
+      command: ["npx", "expo", "start", "--web"]
+      develop:
+        watch:
+          - action: sync+restart
+            path: ../frontend/work-choser
+            target: /app
+            ignore:
+              - node_modules/
+              - .git/
+              - .expo/
+              - .vscode/
+              - .idea/
+              - .husky/
+              - .DS_Store
 
 volumes:
   postgres_data: 
