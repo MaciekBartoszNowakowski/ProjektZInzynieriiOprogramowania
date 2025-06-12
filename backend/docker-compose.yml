@@ -1,9 +1,25 @@
 services:
+  init-data:
+    image: alpine:latest
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: sh -c "
+      if [ -f test-data.zip ] && [ ! -d data/postgres/base ]; then
+        echo 'Rozpakowywanie danych testowych...';
+        unzip -q test-data.zip;
+        echo 'Dane testowe gotowe!';
+      else
+        echo 'Dane już istnieją';
+      fi
+      "
   db:
+    depends_on:
+      - init-data
     image: postgres:latest
     container_name: postgres_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - ./data/postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: thesis_db
       POSTGRES_USER: thesis_user
@@ -51,5 +67,31 @@ services:
             - '*.md'
     command: sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
 
-volumes:
-  postgres_data: 
+  frontend:
+      build:
+        context: ../frontend/work-choser
+        dockerfile: Dockerfile
+      container_name: expo_frontend
+      working_dir: /app
+      ports:
+        - "19000:19000"
+        - "19001:19001"
+        - "19002:19002"
+        - "19006:19006"
+        - "8081:8081"
+      stdin_open: true
+      tty: true
+      command: ["npx", "expo", "start", "--web"]
+      develop:
+        watch:
+          - action: sync+restart
+            path: ../frontend/work-choser
+            target: /app
+            ignore:
+              - node_modules/
+              - .git/
+              - .expo/
+              - .vscode/
+              - .idea/
+              - .husky/
+              - .DS_Store 

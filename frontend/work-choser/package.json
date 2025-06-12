@@ -10,8 +10,7 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "eslint . --config eslint.config.mjs --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint . --config eslint.config.mjs --ext .js,.jsx,.ts,.tsx --fix",
-    "prepare": "husky"
+    "lint:fix": "eslint . --config eslint.config.mjs --ext .js,.jsx,.ts,.tsx --fix"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

@@ -108,10 +108,10 @@ export default function AddingThesis() {
 
     const handleSubmit = async () => {
         const limitReached =
-            (type === 'licencjacka' && workload.bachelor >= limits.bachelor) ||
-            (type === 'inżynierska' && workload.engineering >= limits.engineering) ||
-            (type === 'magisterska' && workload.master >= limits.master) ||
-            (type === 'doktorska' && workload.phd >= limits.phd);
+            (type === 'licencjacka' && limits.bachelor == 0) ||
+            (type === 'inżynierska' && limits.engineering == 0) ||
+            (type === 'magisterska' && limits.master == 0) ||
+            (type === 'doktorska' && limits.phd == 0);
 
         if (limitReached) {
             showMessage(
