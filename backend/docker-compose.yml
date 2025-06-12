@@ -1,9 +1,25 @@
 services:
+  init-data:
+    image: alpine:latest
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: sh -c "
+      if [ -f test-data.zip ] && [ ! -d data/postgres/base ]; then
+        echo 'Rozpakowywanie danych testowych...';
+        unzip -q test-data.zip;
+        echo 'Dane testowe gotowe!';
+      else
+        echo 'Dane już istnieją';
+      fi
+      "
   db:
-    image: 006maciek420/io-db:latest
+    depends_on:
+      - init-data
+    image: postgres:latest
     container_name: postgres_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - ./data/postgres:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: thesis_db
       POSTGRES_USER: thesis_user
@@ -78,7 +94,4 @@ services:
               - .vscode/
               - .idea/
               - .husky/
-              - .DS_Store
-
-volumes:
-  postgres_data: 
+              - .DS_Store 
